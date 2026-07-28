@@ -71,8 +71,9 @@ const Login = () => {
                     <CardTitle className="text-2xl font-bold text-start">
                         Sign In
                     </CardTitle>
-                    <CardDescription className="text-center">
-                        Enter your username and password to access the Miau Nyaaa
+                    <CardDescription className="text-center text-start">
+                        Enter your credential. You can log in using HOTS account  
+                        or using registered email address  
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -128,7 +129,10 @@ const Login = () => {
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     <p className="text-sm text-gray-500">
-                        Forgot password?
+                        Forgot password? 
+                    </p>
+                    <p className="m-2 text-sm text-gray-500 ">
+                         Have an invitation PIN?
                     </p>
                 </CardFooter>
             </Card>
