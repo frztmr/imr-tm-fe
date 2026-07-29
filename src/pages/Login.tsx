@@ -1,5 +1,9 @@
-
-import { Button } from "@/components/ui/button";
+// import {
+//     createFileRoute,
+//     Link,
+//     // useNavigate
+// } from "@tanstack/react-router";
+import { Button } from "../components/ui/button";
 import {
     Card,
     CardContent,
@@ -7,14 +11,14 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ThemeToggle from "@/config/ThemeToggle";
+import ThemeToggle from "../config/ThemeToggle";
 import { Eye, EyeOff } from "lucide-react";
-import Axios from "@/config/axios";
+import Axios from "../config/axios";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -22,6 +26,8 @@ const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    console.log("username", username)
+    console.log("password", password)
 
 
     // const accounts = useAppSelector((s) => s.auth.accounts);
@@ -68,24 +74,26 @@ const Login = () => {
             </div>
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-start">
-                        Sign In
+                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                        {/* <LogIn className="h-5 w-5 text-blue-600" /> */}
+                        Sign in
                     </CardTitle>
-                    <CardDescription className="text-center text-start">
-                        Enter your credential. You can log in using HOTS account  
-                        or using registered email address  
+                    <CardDescription>
+                        Enter your credential.
+                        <br />
+                        You can log in using HOTS account or using registered email address
+                        HOTS Username or Registered Email
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="username">
-                                HOTS Username or Registered Email
+                                Email
                             </Label>
                             <Input
                                 id="username"
                                 type="text"
-                                placeholder="Username"
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -122,17 +130,23 @@ const Login = () => {
                                 </Button>
                             </div>
                         </div>
-                        <Button type="submit" className="w-full">
-                            Sign In
+                        <Button type="submit" className="w-full bg-blue-700 hover:bg-blue-800">
+                            Sign in
                         </Button>
                     </form>
                 </CardContent>
-                <CardFooter className="flex justify-center">
-                    <p className="text-sm text-gray-500">
-                        Forgot password? 
-                    </p>
-                    <p className="m-2 text-sm text-gray-500 ">
-                         Have an invitation PIN?
+                <CardFooter className="flex flex-col gap-3 text-sm">
+                    <div className="flex w-full justify-between text-sm text-muted-foreground">
+                        <p className="hover:text-foreground cursor-pointer">
+                            Have an invitation? Create account
+                        </p>
+                        <p className="hover:text-foreground cursor-pointer">
+                            Forgot password?
+                        </p>
+                    </div>
+                    <p className="w-full rounded-md border bg-muted/40 p-2 text-xs text-muted-foreground">
+                        Dev seeds — admin: <code>admin@imrc.example</code> / <code>admin123</code>; user:{" "}
+                        <code>andre.wijaya@imrc.example</code> / <code>user1234</code>
                     </p>
                 </CardFooter>
             </Card>

@@ -1,25 +1,16 @@
-
-// import everything first here
-
-// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Badge } from "@/components/ui/badge";
-// import { inventoryItems, warehouses, products, transactions } from "@/data/mockData";
-// import { Package, Warehouse, AlertTriangle, TrendingUp } from "lucide-react";
-
-// test ini harusnya app shell
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Plane, Plus, Globe2, Home, BookOpen, Shield, LogIn, LogOut, Search, User,
   Users as UsersIcon, MessageCircle, Bell, Eye, Handshake, PenSquare,
 } from "lucide-react";
-import { cn } from "../lib/utils";
-// import { useAppDispatch, useAppSelector } from "@/store";
-// import { setCurrentUser } from "@/store/authSlice";
+import { cn } from "@/lib/utils";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { setCurrentUser } from "@/store/authSlice";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 type NavKey = "/" | "/reports" | "/messages" | "/notifications" | "/profile";
 
@@ -43,10 +34,8 @@ const nav: NavItem[] = [
 const SEEN_KEY = "imrc.notifications.seenAt";
 
 function useUnreadCount() {
-  const posts = "useAppSelector((s) => s.posts.posts);"
-  const trips = "useAppSelector((s) => s.trips.trips);"
-  // const posts = useAppSelector((s) => s.posts.posts);
-  // const trips = useAppSelector((s) => s.trips.trips);
+  const posts = useAppSelector((s) => s.posts.posts);
+  const trips = useAppSelector((s) => s.trips.trips);
   const [seenAt, setSeenAt] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,8 +51,8 @@ function useUnreadCount() {
 
   return useMemo(() => {
     const stamps = [
-      // ...posts.map((p) => p.createdAt),
-      // ...trips.map((t) => t.startDate || ""),
+      ...posts.map((p) => p.createdAt),
+      ...trips.map((t) => t.startDate || ""),
     ].filter(Boolean);
     if (!seenAt) return stamps.length;
     return stamps.filter((s) => s > seenAt).length;
@@ -109,10 +98,8 @@ function CreateMenu({ trigger }: { trigger: React.ReactNode }) {
   );
 }
 
-
-
-const Dashboard = () => {
- const pathname = useRouterState({ select: (s) => s.location.pathname });
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const dispatch = useAppDispatch();
   const { accounts, currentUserId } = useAppSelector((s) => s.auth);
   const current = accounts.find((a) => a.id === currentUserId) ?? null;
@@ -192,13 +179,96 @@ const Dashboard = () => {
       </Link>
     );
   };
+
   return (
-    <div className="p-6 space-y-6">
-      <h1>
-        Miaw
-      </h1>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Top bar */}
+      <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
+              <Globe2 className="h-4 w-4" />
+            </span>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold">IMI</div>
+              <div className="hidden text-xs text-muted-foreground sm:block">
+                International Market Insight
+              </div>
+            </div>
+          </Link>
+
+          <nav className="hidden items-center gap-1 md:flex">
+            {nav.map((n) => renderItem(n, "desktop"))}
+
+            <Link to="/search" aria-label="Search" className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+              isActive("/search") && "bg-accent text-foreground",
+            )}>
+              <Search className="h-4 w-4" /> Search
+            </Link>
+            <Link to="/trips" className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+              isActive("/trips") && "bg-accent text-foreground",
+            )}>
+              <Plane className="h-4 w-4" /> Trips
+            </Link>
+            <Link to="/people" className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+              isActive("/people") && "bg-accent text-foreground",
+            )}>
+              <UsersIcon className="h-4 w-4" /> People
+            </Link>
+
+            {current?.role === "admin" && (
+              <Link to="/admin" className={cn(
+                "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                isActive("/admin") && "bg-accent text-foreground",
+              )}>
+                <Shield className="h-4 w-4" /> Admin
+              </Link>
+            )}
+
+            <CreateMenu
+              trigger={
+                <button className="ml-2 flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+                  <Plus className="h-4 w-4" /> Create
+                </button>
+              }
+            />
+
+            {current ? (
+              <button onClick={() => dispatch(setCurrentUser(null))}
+                aria-label="Sign out"
+                className="ml-1 flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+                <LogOut className="h-4 w-4" />
+              </button>
+            ) : null}
+          </nav>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-10">{children}</main>
+
+      {/* Mobile create button */}
+      <div className="md:hidden">
+        <CreateMenu
+          trigger={
+            <button
+              aria-label="Create"
+              className="fixed bottom-20 right-4 z-30 grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition hover:opacity-90"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          }
+        />
+      </div>
+
+      {/* Bottom nav (mobile) — icons only */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur md:hidden">
+        <div className="mx-auto grid max-w-6xl grid-cols-5">
+          {nav.map((n) => renderItem(n, "mobile"))}
+        </div>
+      </nav>
     </div>
   );
-};
-
-export default Dashboard;
+}

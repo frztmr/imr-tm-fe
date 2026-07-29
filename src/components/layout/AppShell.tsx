@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Plane, Plus, Globe2, Sparkles, BookOpen, Shield, LogIn, LogOut, Search, User, Users as UsersIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { setCurrentUser } from "@/store/authSlice";
 
@@ -10,6 +10,7 @@ type NavItem = {
   icon: typeof LayoutDashboard;
   exact?: boolean;
 };
+
 
 const nav: NavItem[] = [
   { to: "/", label: "Feed", icon: Sparkles, exact: true },
@@ -23,8 +24,9 @@ const nav: NavItem[] = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const dispatch = useAppDispatch();
-  const { accounts, currentUserId } = useAppSelector((s) => s.auth);
-  const current = accounts.find((a) => a.id === currentUserId) ?? null;
+  // const { accounts, currentUserId } = useAppSelector((s) => s.auth);
+  // const current = accounts.find((a) => a.id === currentUserId) ?? null;
+  const current = "accounts.find((a) => a.id === currentUserId) ?? null;"
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
@@ -54,7 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <Link
                     key={n.to}
                     to="/u/$userId"
-                    params={{ userId: encodeURIComponent(current.name) }}
+                    // params={{ userId: encodeURIComponent(current.name) }}
                     className={cn(
                       "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
                       active && "bg-accent text-foreground",
@@ -98,12 +100,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <>
                 <Link
                   to="/u/$userId"
-                  params={{ userId: encodeURIComponent(current.name) }}
+                  // params={{ userId: encodeURIComponent(current.name) }}
                   className="ml-1 flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
-                  <User className="h-4 w-4" /> {current.name.split(" ")[0]}
+                  {/* <User className="h-4 w-4" /> {current.name.split(" ")[0]} */}
+                  <User className="h-4 w-4" /> "Username"
                 </Link>
-                <button onClick={() => dispatch(setCurrentUser(null))}
+                <button
+                  // onClick={() => dispatch(setCurrentUser(null))}
                   aria-label="Sign out"
                   className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
                   <LogOut className="h-4 w-4" />
