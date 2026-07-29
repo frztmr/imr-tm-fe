@@ -25,9 +25,7 @@ const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    console.log("username", username)
-    console.log("password", password)
+    const [showPassword, setShowPassword] = useState(false); 
 
 
     // const accounts = useAppSelector((s) => s.auth.accounts);
