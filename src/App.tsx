@@ -3,12 +3,20 @@
 // import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+const queryClient = new QueryClient();
+
+// ============= COMPONENT ================ //
+import NavBar from "./components/navBar";
 import MainLayout from "./components/layout/MainLayout";
+
+
+
+// =============== PAGES ================== //
 import Login from "./pages/Login";
 import Index from "./pages/Index"; 
 import NotFound from "./pages/NotFound";
  
-const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -18,7 +26,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route element={<MainLayout />}>
+          <Route element={
+            // <MainLayout />
+            <NavBar />
+            }>
             <Route path="/" element={<Index />} /> 
             {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
  

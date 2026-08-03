@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart, MessageCircle, Share2, Bookmark, MapPin, Sparkles, TrendingUp, FileText, PenSquare, Trash2 } from "lucide-react";
 
 import { useMemo, useState } from "react";
+import NavBar from '../components/navBar'
 
 const photos = [];
 
@@ -40,8 +41,8 @@ const FeedCard = () => {
       {photos.length > 0 && (
         <div className={
           photos.length
-           === 1 ?
-           "" : "grid grid-cols-2 gap-0.5"}>
+            === 1 ?
+            "" : "grid grid-cols-2 gap-0.5"}>
           {photos.slice(0, 4).map((src, i) => (
             <img
               key={i}
@@ -99,24 +100,24 @@ const FeedCard = () => {
               {p}
             </p>
           ))} */}
-           
-            <p  className="text-foreground/90">
-              <span className="font-medium text-foreground">
-                {/* {i === 0 ? `${trip.assignee} ` : ""} */}
-                trip.assignee
-                </span>
-            </p>
-         
+
+          <p className="text-foreground/90">
+            <span className="font-medium text-foreground">
+              {/* {i === 0 ? `${trip.assignee} ` : ""} */}
+              trip.assignee
+            </span>
+          </p>
+
         </article>
         <div className="flex flex-wrap gap-1.5 pt-1">
           {/* {tags.map((t) => (
             <Badge key={t} variant="secondary" className="rounded-full font-normal">
               {t}
             </Badge>
-          ))} */} 
-            <Badge   variant="secondary" className="rounded-full font-normal">
-              badge
-            </Badge> 
+          ))} */}
+          <Badge variant="secondary" className="rounded-full font-normal">
+            badge
+          </Badge>
         </div>
         <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
           {/* <span>View all {comments} comments</span> */}
@@ -136,6 +137,7 @@ const FeedCard = () => {
 
 const Index = () => {
   // return <Dashoard />;
+  return <NavBar />;
 };
 
 export default Index;
