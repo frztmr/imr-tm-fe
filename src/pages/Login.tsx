@@ -143,8 +143,9 @@ const Login = () => {
                         </p>
                     </div>
                     <p className="w-full rounded-md border bg-muted/40 p-2 text-xs text-muted-foreground">
-                        Dev seeds — admin: <code>admin@imrc.example</code> / <code>admin123</code>; user:{" "}
-                        <code>andre.wijaya@imrc.example</code> / <code>user1234</code>
+                        {/* Dev seeds — admin: <code>admin@imrc.example</code> / <code>admin123</code>; user:{" "}
+                        <code>andre.wijaya@imrc.example</code> / <code>user1234</code> */}
+                        this test platform is on progress
                     </p>
                 </CardFooter>
             </Card>
