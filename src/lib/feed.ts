@@ -1,4 +1,4 @@
-import type { FeedPost, PostReply } from "@/types/types";
+import type { FeedPost, PostReply } from "@/types/tipes";
 
 export function initialsOf(name: string) {
   return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();

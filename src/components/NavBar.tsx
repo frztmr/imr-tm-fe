@@ -1,5 +1,5 @@
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet} from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
     Plane, Plus, Globe2, Home,
@@ -299,10 +299,10 @@ const NavBar = (
                 </div>
             </header>
 
-            {/* <main
+            <main
                 className="mx-auto max-w-6xl px-4 pb-24 pt-6 md:pb-10">
-                {children}
-            </main> */}
+                {<Outlet/>}
+            </main>
 
             {/* Mobile create button */}
             <div className="md:hidden">

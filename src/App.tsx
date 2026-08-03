@@ -14,33 +14,35 @@ import MainLayout from "./components/layout/MainLayout";
 
 // =============== PAGES ================== //
 import Login from "./pages/Login";
-import Index from "./pages/Index"; 
+import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
- 
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     {/* <TooltipProvider> */}
-      {/* <Toaster /> */}
-      {/* <Sonner /> */}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={
+    {/* <Toaster /> */}
+    {/* <Sonner /> */}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          element={
             // <MainLayout />
             <NavBar />
-            }>
-            <Route path="/" element={<Index />} /> 
-            {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
- 
+          }
+        >
+          <Route path="/" element={<Index />} /> 
+          {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
 
- 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
 
-      </BrowserRouter>
+
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+
+    </BrowserRouter>
     {/* </TooltipProvider> */}
   </QueryClientProvider>
 );

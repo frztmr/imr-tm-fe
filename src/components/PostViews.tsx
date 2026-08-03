@@ -1,14 +1,22 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { Heart, MessageCircle, Share2, Bookmark, Trash2, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import { FeedPost, PostReply } from "@/types/tipes"
+
+// import { useAppDispatch } from "@/store";
+// import { addReply, deleteReply } from "@/store/postsSlice";
+// import type { FeedPost, PostReply } from "@/store/types";
+
+
+import {
+  Heart, MessageCircle, Share2,
+  Bookmark, Trash2, MapPin
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
-import { useAppDispatch } from "@/store";
-import { addReply, deleteReply } from "@/store/postsSlice";
 import { useCurrentUser } from "@/lib/currentUser";
 import { handleOf, initialsOf, relTime, repliesOf, subtreeCount } from "@/lib/feed";
-import type { FeedPost, PostReply } from "@/store/types";
 
 export function ThreadActions({
   liked, onLike, likes, comments, saved, onSave, onReply,
@@ -77,14 +85,14 @@ export function ReplyComposer({
   postId: string; parentId?: string; replyingTo: string; onDone?: () => void; autoFocus?: boolean;
   inputRef?: React.RefObject<HTMLTextAreaElement | null>;
 }) {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const me = useCurrentUser();
   const [draft, setDraft] = useState("");
 
   const submit = () => {
     const text = draft.trim();
     if (!text) return;
-    dispatch(addReply({ postId, parentId, author: me.name, text }));
+    // dispatch(addReply({ postId, parentId, author: me.name, text })); //redux. aktifkan jika sudah siap
     setDraft("");
     onDone?.();
   };
@@ -126,9 +134,11 @@ export function ReplyComposer({
 export function ReplyRow({
   post, reply, showConnector,
 }: {
-  post: FeedPost; reply: PostReply; showConnector: boolean;
+  post: FeedPost;
+  reply: PostReply;
+  showConnector: boolean;
 }) {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -141,8 +151,11 @@ export function ReplyRow({
       <div
         role="link"
         tabIndex={0}
-        onClick={() => navigate({ to: "/p/$postId", params: { postId: reply.id } })}
-        onKeyDown={(e) => { if (e.key === "Enter") navigate({ to: "/p/$postId", params: { postId: reply.id } }); }}
+        // onClick={() => navigate( `/p/${ reply.id}`)}
+        onClick={() => navigate(`/p/${reply.id}`)}
+        onKeyDown={
+          (e) => { if (e.key === "Enter") navigate(`/p/$postId`) }
+        }
         className="flex cursor-pointer gap-3 transition hover:bg-muted/30"
       >
         <div className="flex w-10 shrink-0 flex-col items-center">
@@ -158,7 +171,7 @@ export function ReplyRow({
             <span className="text-muted-foreground">·</span>
             <span className="text-muted-foreground">{relTime(reply.createdAt)}</span>
             <button
-              onClick={(e) => { e.stopPropagation(); dispatch(deleteReply({ postId: post.id, replyId: reply.id })); }}
+              // onClick={(e) => { e.stopPropagation(); dispatch(deleteReply({ postId: post.id, replyId: reply.id })); }}
               aria-label="Delete reply"
               className="ml-auto rounded-full p-1 text-muted-foreground opacity-0 transition hover:text-destructive focus:opacity-100 group-hover/reply:opacity-100"
             >
