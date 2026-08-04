@@ -1,13 +1,13 @@
-// import { Toaster } from "@/components/ui/toaster";
-// import { Toaster as Sonner } from "@/components/ui/sonner";
-// import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
 // ============= COMPONENT ================ //
-import NavBar from "./components/navBar";
+import NavBar from "@/components/NavBar";
 import MainLayout from "./components/layout/MainLayout";
 
 
@@ -18,21 +18,20 @@ import Index from "./pages/Index";
 import NewPost from "./pages/Feed.New";
 import NotFound from "./pages/NotFound";
 
-import TripIndex from "./pages/Trip.Index";
-import NewTrip from "./pages/Trip.New"; 
+import TripIndex from "./pages/trip/Trip.Index";
+import NewTrip from "./pages/trip/Trip.New"; 
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* <TooltipProvider> */}
-    {/* <Toaster /> */}
-    {/* <Sonner /> */}
+    <TooltipProvider>
+    <Toaster />
+    <Sonner />
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
-          element={
-            // <MainLayout />
-            <NavBar />
+          element={ 
+            <NavBar /> //Ini untuk navbarnya. jadi global dia
           }
         >
           <Route path="/" element={<Index />} /> 
@@ -51,7 +50,7 @@ const App = () => (
       </Routes>
 
     </BrowserRouter>
-    {/* </TooltipProvider> */}
+    </TooltipProvider>
   </QueryClientProvider>
 );
 

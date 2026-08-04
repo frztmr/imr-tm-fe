@@ -11,7 +11,7 @@ import Dashboard from './Dashboard';
 //Types
 import { Trip, FeedPost } from "@/types/tipes";
 
-import NavBar from '@/components/navBar'
+// import NavBar from '@/components/navBar'
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
