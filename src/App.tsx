@@ -18,7 +18,8 @@ import Index from "./pages/Index";
 import NewPost from "./pages/Feed.New";
 import NotFound from "./pages/NotFound";
 
-import NewTrip from "./pages/Trip.New";
+import TripIndex from "./pages/Trip.Index";
+import NewTrip from "./pages/Trip.New"; 
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/feed/new" element={<NewPost />} /> 
 
           
+          <Route path="/trips/" element={<TripIndex />} /> 
           <Route path="/trips/new" element={<NewTrip />} /> 
 
 
