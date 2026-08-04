@@ -1,0 +1,22 @@
+{
+  "Indonesia": ["Jakarta", "Surabaya", "Bandung", "Medan", "Semarang", "Makassar", "Denpasar", "Yogyakarta"],
+  "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Khon Kaen", "Hat Yai"],
+  "Philippines": ["Manila", "Quezon City", "Cebu City", "Davao", "Makati", "Pasig"],
+  "Vietnam": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hai Phong", "Can Tho"],
+  "Malaysia": ["Kuala Lumpur", "Penang", "Johor Bahru", "Ipoh", "Kuching", "Kota Kinabalu"],
+  "Singapore": ["Singapore"],
+  "Japan": ["Tokyo", "Osaka", "Kyoto", "Nagoya", "Sapporo", "Fukuoka", "Yokohama"],
+  "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju"],
+  "China": ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu", "Hangzhou", "Xi'an"],
+  "India": ["Mumbai", "Delhi", "Bengaluru", "Chennai", "Kolkata", "Hyderabad", "Pune"],
+  "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+  "United States": ["New York", "Los Angeles", "Chicago", "Houston", "San Francisco", "Seattle", "Miami"],
+  "United Kingdom": ["London", "Manchester", "Birmingham", "Liverpool", "Edinburgh"],
+  "Germany": ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"],
+  "France": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice"],
+  "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht"],
+  "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
+  "Saudi Arabia": ["Riyadh", "Jeddah", "Mecca", "Medina"],
+  "Brazil": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"],
+  "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"]
+}

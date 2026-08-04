@@ -18,6 +18,7 @@ import Index from "./pages/Index";
 import NewPost from "./pages/Feed.New";
 import NotFound from "./pages/NotFound";
 
+import NewTrip from "./pages/Trip.New";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -34,9 +35,12 @@ const App = () => (
           }
         >
           <Route path="/" element={<Index />} /> 
-          <Route path="/feed/new" element={<NewPost />} /> 
           {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
+          
+          <Route path="/feed/new" element={<NewPost />} /> 
 
+          
+          <Route path="/trips/new" element={<NewTrip />} /> 
 
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
