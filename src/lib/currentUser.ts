@@ -1,7 +1,7 @@
 // Mocked account context. Replace with real auth later.
 export const currentUser = {
-  name: "Andre Wijaya",
-  email: "andre.wijaya@imrc.example",
+  name: "Fariz Tamara",
+  email: "muhammad.fariz@icbp.indofood.co.id",
   role: "Field Researcher",
 };
 

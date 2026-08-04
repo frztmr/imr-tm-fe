@@ -15,6 +15,7 @@ import MainLayout from "./components/layout/MainLayout";
 // =============== PAGES ================== //
 import Login from "./pages/Login";
 import Index from "./pages/Index";
+import NewPost from "./pages/Feed.New";
 import NotFound from "./pages/NotFound";
 
 
@@ -33,6 +34,7 @@ const App = () => (
           }
         >
           <Route path="/" element={<Index />} /> 
+          <Route path="/feed/new" element={<NewPost />} /> 
           {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
 
 
