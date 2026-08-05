@@ -5,9 +5,12 @@ import { MarketIntelCard } from './MarketIntelCard'
 import { CompetitorCard } from './CompetitorCard'
 import { AppointmentCard } from './AppoinmentCard'
 import { ToolkitCard } from './ToolkitCard'
+import { AuditCard } from './AuditCard'
+import { PartnerCard } from './PartnerCard'
 
 export {
     DraftBadge, Labeled, RowActions,
     MarketIntelCard, CompetitorCard,
-    AppointmentCard, ToolkitCard
+    AppointmentCard, ToolkitCard,
+    AuditCard, PartnerCard
 }
