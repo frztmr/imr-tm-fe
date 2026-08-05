@@ -1,29 +1,21 @@
 
-// react requiremet
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+// react requiremet 
+import { useState } from "react";
 
 // components and library
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { PhotoUploader, PhotoGallery } from "@/components/PhotoUploader";
 import {
-    ArrowLeft, MapPin, Calendar, FileText, Camera, Users, MessageSquare,
-    TrendingUp, Mail, ShoppingBag, AlertTriangle, BookOpen, Plus, X,
-    ChevronDown, ChevronUp, Image, Pencil, Trash2, FileEdit, Zap, Sparkles,
+    Users, AlertTriangle, Plus,
 } from "lucide-react";
 import { DraftBadge, RowActions } from "../trip.component";
 
 //Typescript
-import type { RetailAudit, AuditDetail, PartnerLog } from "@/types/tipes";
+import type { PartnerLog } from "@/types/tipes";
 
 
 
