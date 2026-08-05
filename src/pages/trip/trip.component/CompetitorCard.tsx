@@ -1,27 +1,26 @@
 
 //React Requirement
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 //Redux
 // import { useAppDispatch, useAppSelector } from "@/store";
 
 // components and library
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle
+} from "@/components/ui/card";
+
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { PhotoUploader, PhotoGallery } from "@/components/PhotoUploader";
+import { PhotoUploader } from "@/components/PhotoUploader";
 import {
-    ArrowLeft, MapPin, Calendar, FileText, Camera, Users, MessageSquare,
-    TrendingUp, Mail, ShoppingBag, AlertTriangle, BookOpen, Plus, X,
-    ChevronDown, ChevronUp, Image, Pencil, Trash2, FileEdit, Zap, Sparkles,
+    TrendingUp, Plus,
 } from "lucide-react";
 import { DraftBadge, RowActions } from "../trip.component";
 
@@ -39,7 +38,35 @@ function emptyCompetitor(): Omit<Competitor, "id"> {
     };
 }
 
-function CompetitorCard({ tripId, competitors }: { tripId: string; competitors: Competitor[] }) {
+
+
+function CompetitorForm({ value, onChange, onSave, onCancel }: {
+    value: Competitor; onChange: (c: Competitor) => void; onSave: () => void; onCancel: () => void;
+}) {
+    return (
+        <div className="space-y-3">
+            <div className="grid gap-2 md:grid-cols-2">
+                <Input placeholder="Brand" value={value.brand} onChange={(e) => onChange({ ...value, brand: e.target.value })} />
+                <Input placeholder="Flavour" value={value.flavour} onChange={(e) => onChange({ ...value, flavour: e.target.value })} />
+                <Input placeholder="Noodle type" value={value.noodleType} onChange={(e) => onChange({ ...value, noodleType: e.target.value })} />
+                <Input placeholder="Price" value={value.price} onChange={(e) => onChange({ ...value, price: e.target.value })} />
+                <Input placeholder="Presence" value={value.presence} onChange={(e) => onChange({ ...value, presence: e.target.value })} className="md:col-span-2" />
+                <Textarea placeholder="Caption" value={value.caption} onChange={(e) => onChange({ ...value, caption: e.target.value })} className="md:col-span-2" />
+            </div>
+            <PhotoUploader
+                photos={value.photo ? [value.photo] : []}
+                onChange={(ps) => onChange({ ...value, photo: ps[0] })}
+                label="Product photo" single
+            />
+            <div className="flex justify-end gap-2">
+                <Button size="sm" variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button size="sm" onClick={onSave}>Save</Button>
+            </div>
+        </div>
+    );
+}
+
+export function CompetitorCard({ tripId, competitors }: { tripId: string; competitors: Competitor[] }) {
     // const dispatch = useAppDispatch();
     const [showAdd, setShowAdd] = useState(false);
     const [form, setForm] = useState<Omit<Competitor, "id">>(emptyCompetitor());
@@ -137,31 +164,5 @@ function CompetitorCard({ tripId, competitors }: { tripId: string; competitors: 
                 )}
             </CardContent>
         </Card>
-    );
-}
-
-function CompetitorForm({ value, onChange, onSave, onCancel }: {
-    value: Competitor; onChange: (c: Competitor) => void; onSave: () => void; onCancel: () => void;
-}) {
-    return (
-        <div className="space-y-3">
-            <div className="grid gap-2 md:grid-cols-2">
-                <Input placeholder="Brand" value={value.brand} onChange={(e) => onChange({ ...value, brand: e.target.value })} />
-                <Input placeholder="Flavour" value={value.flavour} onChange={(e) => onChange({ ...value, flavour: e.target.value })} />
-                <Input placeholder="Noodle type" value={value.noodleType} onChange={(e) => onChange({ ...value, noodleType: e.target.value })} />
-                <Input placeholder="Price" value={value.price} onChange={(e) => onChange({ ...value, price: e.target.value })} />
-                <Input placeholder="Presence" value={value.presence} onChange={(e) => onChange({ ...value, presence: e.target.value })} className="md:col-span-2" />
-                <Textarea placeholder="Caption" value={value.caption} onChange={(e) => onChange({ ...value, caption: e.target.value })} className="md:col-span-2" />
-            </div>
-            <PhotoUploader
-                photos={value.photo ? [value.photo] : []}
-                onChange={(ps) => onChange({ ...value, photo: ps[0] })}
-                label="Product photo" single
-            />
-            <div className="flex justify-end gap-2">
-                <Button size="sm" variant="outline" onClick={onCancel}>Cancel</Button>
-                <Button size="sm" onClick={onSave}>Save</Button>
-            </div>
-        </div>
     );
 }
