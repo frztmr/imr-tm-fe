@@ -21,6 +21,11 @@ import {
     ChevronDown, ChevronUp, Image, Pencil, Trash2, FileEdit, Zap, Sparkles,
 } from "lucide-react";
 
+// == generic component
+import {
+    Labeled,
+} from './trip.component'
+
 
 //Redux
 /*
@@ -54,11 +59,12 @@ const TripDetail = () => {
     // const dispatch = useAppDispatch();
 
     const { tripId } = useParams();
+    // const trip = [];
     // const citiesLabel = (trip.cities ?? []).join(", "); join nama kotanya
     const citiesLabel = "Jakarta, Bandung";
 
     const trip = {
-        id: "001",
+        id: "string",
         title: "Dummy trip",
         country: "Malaysia",
         cities: ["Ipoh"],
@@ -103,10 +109,7 @@ const TripDetail = () => {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline" className={tones[trip.status]}>{trip.status.replace("_", " ")}</Badge>
-                    <Select
-                        value={trip.status}
-                    // onValueChange={(v) => dispatch(setStatus({ tripId: trip.id, status: v as never }))}
-                    >
+                    <Select value={trip.status} onValueChange={(v) => dispatch(setStatus({ tripId: trip.id, status: v as never }))}>
                         <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="planned">Planned</SelectItem>
@@ -117,26 +120,21 @@ const TripDetail = () => {
                     <Button
                         variant={trip.isDraft ? "default" : "outline"}
                         size="sm"
-                    // onClick={
-                    //     () => dispatch(setTripDraft({ tripId: trip.id, isDraft: !trip.isDraft }))
-                    // }
+                        onClick={() => dispatch(setTripDraft({ tripId: trip.id, isDraft: !trip.isDraft }))}
                     >
                         {trip.isDraft ? "Mark as final" : "Save as draft"}
                     </Button>
                     <Link
-                        to={`/trips/${trip.id}/approval`}
-                        className={`inline-flex items-center gap-1 rounded-md 
-                            border-2 border-border bg-card px-3 py-2 text-sm 
-                            font-medium hover:border-primary/50 hover:text-primary`}
+                        to="/trips/$tripId/approval"
+                        params={{ tripId: trip.id }}
+                        className="inline-flex items-center gap-1 rounded-md border-2 border-border bg-card px-3 py-2 text-sm font-medium hover:border-primary/50 hover:text-primary"
                     >
                         <BookOpen className="h-4 w-4" /> Approval form
                     </Link>
                     <Link
-                        to={`/trips/${trip.id}/article`}
-                        className={`inline-flex items-center gap-1 
-                            rounded-md border-2 border-border 
-                            bg-card px-3 py-2 text-sm font-medium 
-                            hover:border-primary/50 hover:text-primary`}
+                        to="/trips/$tripId/article"
+                        params={{ tripId: trip.id }}
+                        className="inline-flex items-center gap-1 rounded-md border-2 border-border bg-card px-3 py-2 text-sm font-medium hover:border-primary/50 hover:text-primary"
                     >
                         <BookOpen className="h-4 w-4" /> Article
                     </Link>
@@ -146,8 +144,9 @@ const TripDetail = () => {
             {/* Trip-as-tag: the two primary capture flows */}
             <div className="mb-4 grid gap-3 sm:grid-cols-2">
                 <Link
-                    to={`/trips/${trip.id}/capture`} 
-                    // search={{ kind: "sighting" }}
+                    to="/trips/$tripId/capture"
+                    params={{ tripId: trip.id }}
+                    search={{ kind: "sighting" }}
                     className="group rounded-lg border-2 border-border bg-card p-4 transition hover:border-primary/60 hover:bg-accent"
                 >
                     <div className="flex items-center gap-3">
@@ -161,8 +160,9 @@ const TripDetail = () => {
                     </div>
                 </Link>
                 <Link
-                    to={`/trips/${trip.id}/capture`} 
-                    // search={{ kind: "meeting" }}
+                    to="/trips/$tripId/capture"
+                    params={{ tripId: trip.id }}
+                    search={{ kind: "meeting" }}
                     className="group rounded-lg border-2 border-border bg-card p-4 transition hover:border-primary/60 hover:bg-accent"
                 >
                     <div className="flex items-center gap-3">
