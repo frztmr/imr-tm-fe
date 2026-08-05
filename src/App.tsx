@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 
 import TripIndex from "./pages/trip/Trip.Index";
 import NewTrip from "./pages/trip/Trip.New"; 
+import TripDetail from "./pages/trip/Trip.Detail"; 
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -42,6 +43,7 @@ const App = () => (
           
           <Route path="/trips/" element={<TripIndex />} /> 
           <Route path="/trips/new" element={<NewTrip />} /> 
+          <Route path="/trips/:tripId" element={<TripDetail />} /> 
 
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

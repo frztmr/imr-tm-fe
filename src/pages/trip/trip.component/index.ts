@@ -9,6 +9,7 @@ import { AuditCard } from './AuditCard'
 import { PartnerCard } from './PartnerCard'
 import { SentimentCard } from './SentimentCard'
 import { PostVisitPhotosCard } from './PostVisitPhotosCard'
+import { FieldLogCard } from './FieldLogCard'
 import {
     ArticleCTA,
     ReportCard,
@@ -24,5 +25,6 @@ export {
     AuditCard, PartnerCard,
     SentimentCard, PostVisitPhotosCard,
     ArticleCTA, ReportCard,
-    ForecastCard, FollowUpCard
+    ForecastCard, FollowUpCard,
+    FieldLogCard
 }

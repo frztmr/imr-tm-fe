@@ -1,29 +1,33 @@
 
 // react requiremet
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
-// components and library
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// components and library 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
-import { PhotoUploader, PhotoGallery } from "@/components/PhotoUploader";
 import {
-    ArrowLeft, MapPin, Calendar, FileText, Camera, Users, MessageSquare,
-    TrendingUp, Mail, ShoppingBag, AlertTriangle, BookOpen, Plus, X,
-    ChevronDown, ChevronUp, Image, Pencil, Trash2, FileEdit, Zap, Sparkles,
+    ArrowLeft, MapPin, Calendar, Users,
+    BookOpen,
+    FileEdit, Sparkles,
 } from "lucide-react";
 
 // == generic component
 import {
-    Labeled,
+    MarketIntelCard,
+    AppointmentCard,
+    ToolkitCard,
+    FieldLogCard,
+    CompetitorCard,
+    AuditCard,
+    PartnerCard,
+    SentimentCard,
+    PostVisitPhotosCard,
+    FollowUpCard,
+    ArticleCTA,
+    ReportCard,
+    ForecastCard
 } from './trip.component'
 
 
@@ -109,7 +113,13 @@ const TripDetail = () => {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline" className={tones[trip.status]}>{trip.status.replace("_", " ")}</Badge>
-                    <Select value={trip.status} onValueChange={(v) => dispatch(setStatus({ tripId: trip.id, status: v as never }))}>
+                    <Select
+                        value={trip.status}
+                        onValueChange={
+                            // (v) => dispatch(setStatus({ tripId: trip.id, status: v as never }))
+                            () => console.log("it should be: dispatch(setStatus({ tripId: trip.id, status: v as never })")
+                        }
+                    >
                         <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="planned">Planned</SelectItem>
@@ -120,33 +130,33 @@ const TripDetail = () => {
                     <Button
                         variant={trip.isDraft ? "default" : "outline"}
                         size="sm"
-                        onClick={() => dispatch(setTripDraft({ tripId: trip.id, isDraft: !trip.isDraft }))}
+                        onClick={
+                            // () => dispatch(setTripDraft({ tripId: trip.id, isDraft: !trip.isDraft }))
+                            () => console.log("it should be: dispatch(setTripDraft({ tripId: trip.id, isDraft: !trip.isDraft }))")
+                        }
                     >
                         {trip.isDraft ? "Mark as final" : "Save as draft"}
                     </Button>
                     <Link
-                        to="/trips/$tripId/approval"
-                        params={{ tripId: trip.id }}
+                        to={`/trips/${trip.id}/approval`}
                         className="inline-flex items-center gap-1 rounded-md border-2 border-border bg-card px-3 py-2 text-sm font-medium hover:border-primary/50 hover:text-primary"
                     >
                         <BookOpen className="h-4 w-4" /> Approval form
                     </Link>
                     <Link
-                        to="/trips/$tripId/article"
-                        params={{ tripId: trip.id }}
+                        to={`/trips/${trip.id}/article`}
                         className="inline-flex items-center gap-1 rounded-md border-2 border-border bg-card px-3 py-2 text-sm font-medium hover:border-primary/50 hover:text-primary"
                     >
                         <BookOpen className="h-4 w-4" /> Article
                     </Link>
                 </div>
-            </div>
+            </div >
 
             {/* Trip-as-tag: the two primary capture flows */}
-            <div className="mb-4 grid gap-3 sm:grid-cols-2">
+            < div className="mb-4 grid gap-3 sm:grid-cols-2" >
                 <Link
-                    to="/trips/$tripId/capture"
-                    params={{ tripId: trip.id }}
-                    search={{ kind: "sighting" }}
+                    to={`/trips/${trip.id}/capture`}
+                    state={{ kind: "sighting" }}
                     className="group rounded-lg border-2 border-border bg-card p-4 transition hover:border-primary/60 hover:bg-accent"
                 >
                     <div className="flex items-center gap-3">
@@ -160,9 +170,8 @@ const TripDetail = () => {
                     </div>
                 </Link>
                 <Link
-                    to="/trips/$tripId/capture"
-                    params={{ tripId: trip.id }}
-                    search={{ kind: "meeting" }}
+                    to={`/trips/${trip.id}/capture`}
+                    state={{ kind: "meeting" }}
                     className="group rounded-lg border-2 border-border bg-card p-4 transition hover:border-primary/60 hover:bg-accent"
                 >
                     <div className="flex items-center gap-3">
@@ -175,7 +184,7 @@ const TripDetail = () => {
                         </div>
                     </div>
                 </Link>
-            </div>
+            </div >
 
             <Tabs defaultValue="pre" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
@@ -186,7 +195,7 @@ const TripDetail = () => {
 
                 <TabsContent value="pre" className="mt-4 space-y-4">
                     <MarketIntelCard tripId={trip.id} intel={trip.marketIntel} />
-                    <AppointmentsCard tripId={trip.id} appointments={trip.appointments} />
+                    <AppointmentCard tripId={trip.id} appointments={trip.appointments} />
                     <ToolkitCard tripId={trip.id} toolkit={trip.toolkit} />
                 </TabsContent>
 
