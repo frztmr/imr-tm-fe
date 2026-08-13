@@ -24,6 +24,8 @@ import TripDetail from "./pages/trip/Trip.Detail";
 
 import NotificationPage from "./pages/Notification";
 
+import MessagesPage from "./pages/Messages";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -48,6 +50,10 @@ const App = () => (
             <Route path="/trips/:tripId" element={<TripDetail />} />
 
             <Route path="/notifications" element={<NotificationPage />} />
+
+
+
+            <Route path="/messages" element={<MessagesPage />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
