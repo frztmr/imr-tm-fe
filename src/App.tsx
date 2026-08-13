@@ -26,6 +26,10 @@ import NotificationPage from "./pages/Notification";
 
 import MessagesPage from "./pages/Messages";
 
+
+import Reports from "./pages/Reports";
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -54,6 +58,9 @@ const App = () => (
 
 
             <Route path="/messages" element={<MessagesPage />} />
+            
+            
+            <Route path="/reports" element={<Reports />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

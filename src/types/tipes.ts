@@ -167,6 +167,28 @@ export interface ApprovalFile {
   uploadedAt: string;
 }
 
+export type ExpenseCategory =
+  | "Accomodation" | "Airport Tax" | "Allowance" | "Communication" | "Meals"
+  | "Office" | "Promotion" | "Sample" | "Ticket" | "Transport" | "Visa"
+  | "Laundry" | "Entertainment" | "Other";
+
+export type ExpenseCurrency = "IDR" | "USD" | "LOCAL";
+
+export interface ExpenseEntry {
+  id: string;
+  createdAt: string;
+  author: string;
+  date: string;                 // date of transaction (YYYY-MM-DD)
+  description: string;
+  category: ExpenseCategory;
+  currency: ExpenseCurrency;    // only one currency per entry
+  localCurrency?: string;       // code when currency === "LOCAL"
+  amount: number;
+  receipt: boolean;
+  notes: string;
+  photos: Photo[];
+}
+
 export interface Trip {
   id: string;
   title: string;
@@ -187,6 +209,7 @@ export interface Trip {
   postVisitPhotos: Photo[];
   moments: Moment[];
   report: TripReport;
+  expenses?: ExpenseEntry[];
   approval?: TripApproval;
   /** Uploaded Business Trip Approval document (required for Instant Trip Tag) */
   approvalFile?: ApprovalFile;
@@ -200,7 +223,14 @@ export interface FeedPost {
   location: string;
   tags: string[];
   photos: Photo[];
-  kind?: "post" | "see" | "meet";
+  kind?: "post" | "see" | "meet" | "expense" | "feeling" | "poll";
+  /** Poll payload when kind === "poll". */
+  poll?: Poll;
+  /** "restricted" posts are only visible to the author and allowedViewers. */
+  visibility?: "public" | "restricted";
+  allowedViewers?: string[];
+  /** 1–5 star rating for "tell us how you feel" posts. */
+  rating?: number;
   tripId?: string;
   tripTitle?: string;
   contact?: string;
@@ -216,6 +246,18 @@ export interface PostReply {
   createdAt: string;
   parentId?: string; // another reply id when this is a reply-to-reply
   photos?: Photo[];
+}
+
+export interface PollOption {
+  id: string;
+  label: string;
+  votes: string[]; // voter names
+}
+
+export interface Poll {
+  question: string;
+  options: PollOption[];
+  closesAt?: string;
 }
 
 export interface Account {
