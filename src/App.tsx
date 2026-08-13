@@ -19,39 +19,42 @@ import NewPost from "./pages/Feed.New";
 import NotFound from "./pages/NotFound";
 
 import TripIndex from "./pages/trip/Trip.Index";
-import NewTrip from "./pages/trip/Trip.New"; 
-import TripDetail from "./pages/trip/Trip.Detail"; 
+import NewTrip from "./pages/trip/Trip.New";
+import TripDetail from "./pages/trip/Trip.Detail";
+
+import NotificationPage from "./pages/Notification";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-    <Toaster />
-    <Sonner />
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          element={ 
-            <NavBar /> //Ini untuk navbarnya. jadi global dia
-          }
-        >
-          <Route path="/" element={<Index />} /> 
-          {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
-          
-          <Route path="/feed/new" element={<NewPost />} /> 
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            element={
+              <NavBar /> //Ini untuk navbarnya. jadi global dia
+            }
+          >
+            <Route path="/" element={<Index />} />
+            {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
 
-          
-          <Route path="/trips/" element={<TripIndex />} /> 
-          <Route path="/trips/new" element={<NewTrip />} /> 
-          <Route path="/trips/:tripId" element={<TripDetail />} /> 
+            <Route path="/feed/new" element={<NewPost />} />
 
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+            <Route path="/trips/" element={<TripIndex />} />
+            <Route path="/trips/new" element={<NewTrip />} />
+            <Route path="/trips/:tripId" element={<TripDetail />} />
 
-    </BrowserRouter>
+            <Route path="/notifications" element={<NotificationPage />} />
+
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

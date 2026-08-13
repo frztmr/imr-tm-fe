@@ -1,24 +1,21 @@
 
 
 // react requiremet
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useMemo, } from "react";
 
-// components and library
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Bell, Eye, Handshake, Plane, FileText } from "lucide-react";
+// components and library 
 
 // Typescript 
 import { Notif } from "./type";
 
 export function useNotifications(): Notif[] {
 
+    //post dan trip dari redux. harusnya dari database
     // const posts = useAppSelector((s) => s.posts.posts);
     // const trips = useAppSelector((s) => s.trips.trips);
-    
+    const posts = [];
+    const trips = [];
+
     return useMemo(() => {
         const list: Notif[] = [];
         posts.forEach((p) => {
