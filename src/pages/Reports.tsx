@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 //Component
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
 import {
     TrendingUp,
     Receipt, FileText
@@ -15,18 +16,21 @@ import { Hero, ArticleCard } from './reports/'
 // import { useAppSelector } from "@/store";
 
 //typescriput
-// import type { Trip } from "@/types/tipes";
+import type { Trip } from "@/types/tipes";
 
 //datas and mockdata
 import { mockTrips } from '@/data/mockData'
 
 export default function Reports() {
+    
 
     //   const trips = useAppSelector((s) => s.trips.trips);
     // const totalForecast = trips.reduce((s, t) => s + (t.report?.forecastVolume ?? 0), 0);
     const trips = mockTrips; // ambil data dari mock up
     const totalForecast = trips.reduce((s, t) => s + (t.report?.forecastVolume ?? 0), 0);
     const [featured, ...rest] = trips;
+
+    console.log()
 
     return (
         <>
@@ -43,12 +47,27 @@ export default function Reports() {
                 <span className="font-semibold">{totalForecast.toLocaleString()} units</span>
             </div>
 
-            {featured && <Hero trip={featured} />}
+            {/* Ini untuk membuat hero card */}
+            {/* {featured && <Hero trip={featured} />} */}
 
+
+            {/* Ini untuk membuat article card */}
+            {/* 
+            
+            check di loop di bawah. ini bikin error
+            Kelihatannya datanya bermasalah
+            kita matikan dulu fungsi untuk menampilkan article card
+            coba kita sederhanakan
+
+
+            */}
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((t) => (
-                    <ArticleCard key={t.id} trip={t} />
-                ))}
+                {/* {rest.map((t) => (
+                    <ArticleCard
+                        key={t.id}
+                        trip={t}
+                    />
+                ))} */}
             </div>
 
             <div className="mt-10">

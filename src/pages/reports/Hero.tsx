@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Clock, MapPin, TrendingUp, ArrowRight, BookOpen, Receipt, FileText } from "lucide-react";
-import { snippet, initialsOf, readMinutes } from './'
+import { snippet, initialsOf, readMinutes } from './index'
 
 // Redux
 // import { useAppSelector } from "@/store";
@@ -16,7 +16,13 @@ import { snippet, initialsOf, readMinutes } from './'
 import type { Trip } from "@/types/tipes";
 
 export default function Hero({ trip }: { trip: Trip }) {
-    const cover = trip.retailAudits.flatMap((a) => (a.photos ?? []).map((p) => p.url))[0];
+    // const cover = trip.retailAudits.flatMap((a) => (a.photos ?? []).map((p) => p.url))[0];
+
+    const cover = trip?.retailAudits && Array.isArray(trip.retailAudits)
+        ? trip.retailAudits.flatMap((a) => (a?.photos ?? []).map((p) => p?.url))?.[0]
+        : '';
+
+
     return (
         <Card className="overflow-hidden">
             <div className="grid md:grid-cols-2">
@@ -47,7 +53,7 @@ export default function Hero({ trip }: { trip: Trip }) {
                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {readMinutes(trip)} min read</span>
                     </div>
                     <Link
-                        to={`/trips/${trip.id}`} 
+                        to={`/trips/${trip.id}`}
                         className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
                     >
                         Read report <ArrowRight className="h-4 w-4" />
