@@ -29,6 +29,8 @@ import MessagesPage from "./pages/Messages";
 
 import Reports from "./pages/Reports";
 
+import User from './pages/user' 
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -61,6 +63,8 @@ const App = () => (
             
             
             <Route path="/reports" element={<Reports />} />
+
+            <Route path="/u/:userId" element={<User />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
