@@ -10,8 +10,6 @@ export {
     initialsOf,
     readMinutes,
     snippet,
-
-
     Hero,
     ArticleCard
 
