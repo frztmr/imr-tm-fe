@@ -32,6 +32,7 @@ import Reports from "./pages/Reports";
 import User from './pages/user' 
 
 import Settings from './pages/Settings'
+import CategoryItemsPage from './pages/settings/CategoryItems'
 
 
 const App = () => (
@@ -70,6 +71,7 @@ const App = () => (
 
 
             <Route path="/settings" element={<Settings />} />
+            {/* <Route path="/settings/:categoryId" element={<CategoryItemsPage />} /> */}
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
