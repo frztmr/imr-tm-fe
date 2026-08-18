@@ -1,8 +1,8 @@
 
 
 import { initialsOf, readMinutes, snippet } from './util'
-import Hero from './Hero'
-import ArticleCard from './ArticleCard'
+import { Hero } from './Hero'
+import { ArticleCard } from './ArticleCard'
 
 
 

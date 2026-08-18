@@ -7,7 +7,7 @@ import { Clock, MapPin, TrendingUp, ArrowRight, BookOpen, Receipt, FileText } fr
 import type { Trip } from "@/types/tipes";
 
 
-export function initialsOf(name: string) {
+export  function initialsOf(name: string) {
     return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 }
 
@@ -24,3 +24,4 @@ export function snippet(t: Trip) {
     const cities = (t.cities ?? []).join(", ");
     return `In ${cities}, ${t.country}, the shelf reality is clear${comp ? `: ${comp.brand} sits at ${comp.price}, ${comp.presence.toLowerCase()}` : ""}. Our forecast lands at ${t.report.forecastVolume.toLocaleString()} units, with ${t.retailAudits.length} store audits and ${t.partnerLogs.length} partner conversations behind it.`;
 }
+

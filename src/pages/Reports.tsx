@@ -3,14 +3,19 @@
 import { Link } from "react-router-dom";
 
 //Component
-import { Card, CardContent } from "@/components/ui/card";
+import {
+    Card,
+    CardContent
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 import {
     TrendingUp,
-    Receipt, FileText
+    Receipt, FileText,
 } from "lucide-react";
-import { Hero, ArticleCard } from './reports/'
+import { Hero, ArticleCard } from './reports/index'
+// import {ArticleCard} from './reports/ArticleCard'
+// import {Hero} from './reports/Hero'
 
 // Redux
 // import { useAppSelector } from "@/store";
@@ -22,15 +27,13 @@ import type { Trip } from "@/types/tipes";
 import { mockTrips } from '@/data/mockData'
 
 export default function Reports() {
-    
+
 
     //   const trips = useAppSelector((s) => s.trips.trips);
     // const totalForecast = trips.reduce((s, t) => s + (t.report?.forecastVolume ?? 0), 0);
     const trips = mockTrips; // ambil data dari mock up
     const totalForecast = trips.reduce((s, t) => s + (t.report?.forecastVolume ?? 0), 0);
     const [featured, ...rest] = trips;
-
-    console.log()
 
     return (
         <>
@@ -48,7 +51,7 @@ export default function Reports() {
             </div>
 
             {/* Ini untuk membuat hero card */}
-            {/* {featured && <Hero trip={featured} />} */}
+            {featured && <Hero trip={featured} />}
 
 
             {/* Ini untuk membuat article card */}
@@ -62,12 +65,12 @@ export default function Reports() {
 
             */}
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {/* {rest.map((t) => (
+                {rest.map((t) => (
                     <ArticleCard
                         key={t.id}
                         trip={t}
                     />
-                ))} */}
+                ))}
             </div>
 
             <div className="mt-10">

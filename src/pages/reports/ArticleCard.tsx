@@ -11,7 +11,7 @@ import {
     Clock, MapPin,
     BookOpen,
 } from "lucide-react";
-import { snippet, initialsOf, readMinutes } from './'
+import { snippet, readMinutes } from './util'
 
 // Redux
 // import { useAppSelector } from "@/store";
@@ -20,7 +20,7 @@ import { snippet, initialsOf, readMinutes } from './'
 import type { Trip } from "@/types/tipes";
 
 
-export default function ArticleCard({ trip }: { trip: Trip }) {
+export  function ArticleCard({ trip }: { trip: Trip }) {
     // const cover = trip.retailAudits.flatMap((a) => (a.photos ?? []).map((p) => p.url))[0];
 
     const cover = trip?.retailAudits && Array.isArray(trip.retailAudits)
@@ -58,12 +58,14 @@ export default function ArticleCard({ trip }: { trip: Trip }) {
                             <div className="flex items-center gap-2">
                                 <Avatar className="h-6 w-6">
                                     <AvatarFallback className="bg-primary text-[10px] text-primary-foreground">
-                                        {initialsOf(trip.assignee)}
+                                        {/* {initialsOf(trip.assignee)} */}
                                     </AvatarFallback>
                                 </Avatar>
                                 <span>{trip.assignee}</span>
                             </div>
-                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {readMinutes(trip)} min</span>
+                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />
+                                {readMinutes(trip)} min
+                            </span>
                         </div>
                     </CardContent>
                 </Card>
