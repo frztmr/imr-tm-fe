@@ -31,6 +31,8 @@ import Reports from "./pages/Reports";
 
 import User from './pages/user' 
 
+import Settings from './pages/Settings'
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -65,6 +67,9 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
 
             <Route path="/u/:userId" element={<User />} />
+
+
+            <Route path="/settings" element={<Settings />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

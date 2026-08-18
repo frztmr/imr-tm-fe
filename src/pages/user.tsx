@@ -118,11 +118,16 @@ const ProfilePage = () => {
 
 
                 {tab === "trips" && (
-                    <TripsTab trips={trips} showStatus={false} />
+                    <TripsTab
+                        trips={trips}
+                        showStatus={false}
+                    />
                 )}
 
                 {tab === "saved" && (
-                    <SavedTab tripPhotoTiles={tripPhotoTiles} />
+                    <SavedTab
+                        tripPhotoTiles={tripPhotoTiles}
+                    />
                 )}
             </div>
         </>
