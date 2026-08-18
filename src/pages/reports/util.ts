@@ -1,15 +1,9 @@
-import { Link } from "react-router-dom";
-// import { useAppSelector } from "@/store";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Clock, MapPin, TrendingUp, ArrowRight, BookOpen, Receipt, FileText } from "lucide-react";
+
 import type { Trip } from "@/types/tipes";
+import { initialsOf } from "@/lib/utils";
 
 
-export  function initialsOf(name: string) {
-    return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-}
+export { initialsOf } // ini terlanjut di sini. panggil aja, terlalu malas mengubah 
 
 export function readMinutes(t: Trip) {
     const words =
