@@ -13,9 +13,7 @@ import {
     TrendingUp,
     Receipt, FileText,
 } from "lucide-react";
-import { Hero, ArticleCard } from './reports/index'
-// import {ArticleCard} from './reports/ArticleCard'
-// import {Hero} from './reports/Hero'
+import { Hero, ArticleCard } from './reports/index';
 
 // Redux
 // import { useAppSelector } from "@/store";
