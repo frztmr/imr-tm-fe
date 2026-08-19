@@ -71,7 +71,7 @@ const App = () => (
 
 
             <Route path="/settings" element={<Settings />} />
-            {/* <Route path="/settings/:categoryId" element={<CategoryItemsPage />} /> */}
+            <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

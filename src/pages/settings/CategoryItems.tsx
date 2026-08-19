@@ -19,9 +19,9 @@ import {
     resolveSettings,
     sourceLabel,
     settingsCategories
-} from "./";
+} from "./index";
 import { mockAccounts } from '../../data/mockData'
-
+// import { settingsCategories } from './settingsSchema'
 
 function CategoryNotFound() {
     return (
@@ -80,9 +80,9 @@ export default function CategoryItemsPage() {
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <span className="text-sm font-medium">{f.label}</span>
                                                 {/* {r.locked && ( */}
-                                                    <Badge variant="secondary" className="gap-1 rounded-full text-[10px]">
-                                                        <Lock className="h-3 w-3" /> Managed by admin
-                                                    </Badge>
+                                                <Badge variant="secondary" className="gap-1 rounded-full text-[10px]">
+                                                    <Lock className="h-3 w-3" /> Managed by admin
+                                                </Badge>
                                                 {/* )}
                                                 {!r.locked && r.source !== "schema" && r.source !== "user" && (
                                                     <Badge variant="outline" className="rounded-full text-[10px]">{sourceLabel[r.source]}</Badge>
