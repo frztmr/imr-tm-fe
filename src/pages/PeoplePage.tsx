@@ -29,6 +29,10 @@ export default function PeoplePage() {
 //     const accounts = useAppSelector((s) => s.auth.accounts);
 //   const trips = useAppSelector((s) => s.trips.trips);
 //   const posts = useAppSelector((s) => s.posts.posts);
-
+return (
+    <>
+    PeoplePage
+    </>
+)
 
 }

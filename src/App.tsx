@@ -34,6 +34,7 @@ import User from './pages/user'
 import Settings from './pages/Settings'
 import CategoryItemsPage from './pages/settings/CategoryItems'
 
+import PeoplePage from './pages/PeoplePage'
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -72,6 +73,8 @@ const App = () => (
 
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
+            
+            <Route path="/people" element={<PeoplePage />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
