@@ -69,7 +69,8 @@ export default function SearchPage() {
         <>
             <div className="mx-auto max-w-3xl">
                 <h1 className="mb-3 flex items-center gap-2 text-2xl font-semibold tracking-tight">
-                    <SearchIcon className="h-5 w-5 text-primary" /> Search
+                    <SearchIcon className="h-5 w-5 text-primary" />
+                    Search
                 </h1>
                 <div className="relative mb-6">
                     <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -82,6 +83,7 @@ export default function SearchPage() {
                     />
                 </div>
 
+                {/* PeopleSection */}
                 <section className="mb-6">
                     <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                         <User className="h-4 w-4" /> People ({people.length})
@@ -102,8 +104,12 @@ export default function SearchPage() {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="min-w-0">
-                                        <div className="truncate text-sm font-medium">{name}</div>
-                                        <div className="text-xs text-muted-foreground">@{name.toLowerCase().replace(/\s+/g, "")}</div>
+                                        <div className="truncate text-sm font-medium">
+                                            {name}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            @{name.toLowerCase().replace(/\s+/g, "")}
+                                        </div>
                                     </div>
                                 </Link>
                             ))}
@@ -111,6 +117,7 @@ export default function SearchPage() {
                     )}
                 </section>
 
+                {/* TripsSection*/}
                 <section className="mb-6">
                     <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                         <Plane className="h-4 w-4" /> Trips ({tripHits.length})
@@ -124,7 +131,9 @@ export default function SearchPage() {
                                         <div className="min-w-0">
                                             <div className="truncate text-sm font-medium">{t.title}</div>
                                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                <MapPin className="h-3 w-3" />{(t.cities ?? []).join(", ")}, {t.country}
+                                                <MapPin className="h-3 w-3" />
+                                                {(t.cities ?? []).join(", ")},
+                                                {t.country}
                                             </div>
                                         </div>
                                         <Badge variant="secondary" className="rounded-full">{t.status}</Badge>
@@ -132,10 +141,14 @@ export default function SearchPage() {
                                 </Card>
                             </Link>
                         ))}
-                        {tripHits.length === 0 && <p className="text-sm text-muted-foreground">No trips match.</p>}
+                        {tripHits.length === 0 &&
+                            <p className="text-sm text-muted-foreground">
+                                No trips match.
+                            </p>}
                     </div>
                 </section>
 
+                {/* TripsPosts*/}
                 <section>
                     <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                         <FileText className="h-4 w-4" /> Posts ({postHits.length})
