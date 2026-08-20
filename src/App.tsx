@@ -29,7 +29,7 @@ import MessagesPage from "./pages/Messages";
 
 import Reports from "./pages/Reports";
 
-import User from './pages/user' 
+import User from './pages/UserPage' 
 
 import Settings from './pages/Settings'
 import CategoryItemsPage from './pages/settings/'
@@ -38,6 +38,8 @@ import AdminPage from './pages/AdminPage'
 import AdminSettingsPage from './pages/settings/AdminSettingsPage'
 
 import PeoplePage from './pages/PeoplePage'
+
+import SearchPage from './pages/SearchPage'
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -81,6 +83,7 @@ const App = () => (
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             
             <Route path="/people" element={<PeoplePage />} />
+            <Route path="/search" element={<SearchPage />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
