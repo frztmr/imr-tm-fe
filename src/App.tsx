@@ -32,7 +32,9 @@ import Reports from "./pages/Reports";
 import User from './pages/user' 
 
 import Settings from './pages/Settings'
-import CategoryItemsPage from './pages/settings/CategoryItems'
+import CategoryItemsPage from './pages/settings/'
+
+import AdminSettingsPage from './pages/settings/AdminSettingsPage'
 
 import PeoplePage from './pages/PeoplePage'
 
@@ -73,6 +75,8 @@ const App = () => (
 
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
+            
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
             
             <Route path="/people" element={<PeoplePage />} />
 

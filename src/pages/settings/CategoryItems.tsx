@@ -32,7 +32,7 @@ function CategoryNotFound() {
     );
 }
 
-export default function CategoryItemsPage() {
+export function CategoryItemsPage() {
 
     const { categoryId } = useParams();
     // const currentUserId = useAppSelector((s) => s.auth.currentUserId); 
