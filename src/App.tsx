@@ -34,6 +34,7 @@ import User from './pages/user'
 import Settings from './pages/Settings'
 import CategoryItemsPage from './pages/settings/'
 
+import AdminPage from './pages/AdminPage'
 import AdminSettingsPage from './pages/settings/AdminSettingsPage'
 
 import PeoplePage from './pages/PeoplePage'
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
             
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             
             <Route path="/people" element={<PeoplePage />} />
