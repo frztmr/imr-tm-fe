@@ -1,7 +1,16 @@
-import type { FeedPost, PostReply } from "@/types/tipes";
+import type { FeedPost, PostReply } from "@/store/types";
 
 export function initialsOf(name: string) {
   return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+}
+
+/** Restricted posts (e.g. expenses) are only visible to the author and named viewers. */
+export function canViewPost(post: FeedPost, viewerName: string) {
+  if (post.visibility !== "restricted") return true;
+  if (post.author === viewerName) return true;
+  return (post.allowedViewers ?? []).some(
+    (v) => v.toLowerCase() === viewerName.toLowerCase(),
+  );
 }
 
 export function handleOf(name: string) {

@@ -14,7 +14,7 @@ import MainLayout from "./components/layout/MainLayout";
 
 // =============== PAGES ================== //
 import Login from "./pages/Login";
-import Index from "./pages/Index";
+import HomePage from "./pages/HomePage";
 import NewPost from "./pages/Feed.New";
 import NotFound from "./pages/NotFound";
 
@@ -29,7 +29,7 @@ import MessagesPage from "./pages/Messages";
 
 import Reports from "./pages/Reports";
 
-import User from './pages/UserPage' 
+import User from './pages/UserPage'
 
 import Settings from './pages/Settings'
 import CategoryItemsPage from './pages/settings/'
@@ -54,7 +54,7 @@ const App = () => (
               <NavBar /> //Ini untuk navbarnya. jadi global dia
             }
           >
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<HomePage />} />
             {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
 
             <Route path="/feed/new" element={<NewPost />} />
@@ -69,8 +69,8 @@ const App = () => (
 
 
             <Route path="/messages" element={<MessagesPage />} />
-            
-            
+
+
             <Route path="/reports" element={<Reports />} />
 
             <Route path="/u/:userId" element={<User />} />
@@ -78,15 +78,14 @@ const App = () => (
 
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
-            
+
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
-            
+
             <Route path="/people" element={<PeoplePage />} />
             <Route path="/search" element={<SearchPage />} />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />  {/* Ini untuk not found page*/}
           </Route>
         </Routes>
 

@@ -1,43 +1,40 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+
+//React Requirement 
 import { useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Dashboard from './Dashboard';
 
-
+//Component
 // import { useAppSelector } from "@/store";
 // import { useAppDispatch } from "@/store";
 // import type { Trip, FeedPost } from "@/store/types";
 // import { deletePost } from "@/store/postsSlice";
-
-//Types
-import { Trip, FeedPost } from "@/types/tipes";
-
 // import NavBar from '@/components/navBar'
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { ReplyComposer, ReplyRow, ThreadActions } from "@/components/PostViews";
-import {
-  handleOf, initialsOf,
-  relTime, repliesOf, subtreeCount
-} from "@/lib/feed";
-
-import { Card, CardContent } from "@/components/ui/card";
-
 import {
   Heart, MessageCircle, Share2,
   Bookmark, MapPin, Sparkles,
   TrendingUp, FileText, PenSquare, Trash2
 } from "lucide-react";
+ 
+//Redux
+// import { useAppSelector } from "@/store";
+// import { useAppDispatch } from "@/store";
+// import { deletePost } from "@/store/postsSlice";
 
-
-
-const photos = [];
-
-let booted = false;
-const SETTINGS_KEY = "imi.settings";
+//Typescript, dummy data, and util
+import { mockTrips } from "@/data/mockData";
+import { Trip, FeedPost } from "@/types/tipes";
+import { canViewPost, handleOf, initialsOf, relTime, repliesOf, subtreeCount } from "@/lib/feed";
+import { useCurrentUser } from "@/lib/currentUser";
 
 //redux
 // const dispatch = useAppDispatch();
+
 
 function flagOf(country: string) {
   const map: Record<string, string> = {
@@ -48,7 +45,7 @@ function flagOf(country: string) {
   return map[country] ?? "🌏";
 }
 
-
+// articleFor section. this just a dummy
 function articleFor(t: Trip) {
   const compNames = t.competitors.map((c) => c.brand).join(", ") || "no major competitors logged";
   const audit = t.retailAudits[0];
@@ -63,7 +60,6 @@ function articleFor(t: Trip) {
     t.report.forecastVolume ? `Forecast: ${t.report.forecastVolume.toLocaleString()} units in the next cycle.` : null,
   ].filter(Boolean).join("\n\n");
 }
-
 
 function FeedCard({ trip }: { trip: Trip }) {
   const navigate = useNavigate();
@@ -245,7 +241,7 @@ function PostCard({ post }: { post: FeedPost }) {
   );
 }
 
-const Index = () => {
+const HomePage = () => {
   //nyalakan redux ini hanya ketika sudah siap
   // const trips = useAppSelector((s) => s.trips.trips);
   // const posts = useAppSelector((s) => s.posts.posts);
@@ -265,7 +261,7 @@ const Index = () => {
   }, [trips, posts, tab]);
 
   return <>
-    
+
     <div className="mx-auto max-w-xl">
 
       <div className="mb-4 flex items-center justify-between">
@@ -325,10 +321,10 @@ const Index = () => {
           )}
         </div>
       </div>
-    </div>;
-    {/* <NavBar /> */}
+    </div>
+
   </>
 
 };
 
-export default Index;
+export default HomePage;
