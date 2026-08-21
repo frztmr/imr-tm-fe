@@ -1,4 +1,11 @@
 
+
+
+/*
+
+ INI KAYAKNYA GAK KEPAKE
+
+*/
 // import everything first here
 
 // import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,12 +96,12 @@ function CreateMenu({ trigger }: { trigger: React.ReactNode }) {
         {active && (
           <>
             <DropdownMenuItem asChild>
-              <Link to="/trips/$tripId/capture" params={{ tripId: active.id }} search={{ kind: "sighting" }}>
+              <Link to={`/trips/${active.id}/capture`}>
                 <Eye className="mr-2 h-4 w-4" /> I see something
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/trips/$tripId/capture" params={{ tripId: active.id }} search={{ kind: "meeting" }}>
+              <Link to={`/trips/${active.id}/capture`}>
                 <Handshake className="mr-2 h-4 w-4" /> I meet someone
               </Link>
             </DropdownMenuItem>

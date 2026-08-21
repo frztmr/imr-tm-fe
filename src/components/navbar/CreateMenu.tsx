@@ -7,19 +7,27 @@ import { Plane, Eye, Handshake, PenSquare } from "lucide-react";
 
 //Typescript, dummy data
 // import { useAppSelector } from "@/store";
+import { mockTrips } from "@/data/mockData";
 
 interface CreateMenuProps {
     trigger: React.ReactNode;
 }
 
 export default function CreateMenu({ trigger }: CreateMenuProps) {
+
     // // ini untuk liat trip active
     //   const trips = useAppSelector((s) => s.trips.trips);
     //   const active = trips.find((t) => {
     //     const now = new Date().toISOString().slice(0, 10);
     //     return t.startDate <= now && now <= t.endDate;
     //   }) ?? trips[0];
-    const active = true;
+    const trips = mockTrips
+    const active = trips.find((t) => {
+        const now = new Date().toISOString().slice(0, 10);
+        return t.startDate <= now && now <= t.endDate;
+    }) ?? trips[0];
+
+    // const active = true;
 
     return (
         <DropdownMenu>
@@ -33,7 +41,7 @@ export default function CreateMenu({ trigger }: CreateMenuProps) {
                 {active && (
                     <>
                         <DropdownMenuItem asChild>
-                            <Link to="/trips/$tripId/capture"
+                            <Link to={`/trips/${active.id}/capture`}
                             // params={{ tripId: active.id }} //ambil data trip dari redux. nyalakan jika sudah aktif
                             // search={{ kind: "sighting" }} //ambil data trip dari redux. nyalakan jika sudah aktif
                             >
@@ -43,7 +51,7 @@ export default function CreateMenu({ trigger }: CreateMenuProps) {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link
-                                to="/trips/$tripId/capture"
+                                to={`/trips/${active.id}/capture`}
                             // params={{ tripId: active.id }} //ambil data trip dari redux. nyalakan jika sudah aktif
                             // search={{ kind: "meeting" }} //ambil data trip dari redux. nyalakan jika sudah aktif
                             >

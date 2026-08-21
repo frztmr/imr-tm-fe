@@ -289,7 +289,12 @@ export default function FeedNew() {
                             {kind !== "expense" && (
                                 <div className="space-y-1.5">
                                     <Label htmlFor="text" className="sr-only">
-                                        {kind === "see" ? "What did you see?" : kind === "meet" ? "Who did you meet & what did they say?" : "What's on your mind?"}
+                                        {kind === "see" ?
+                                            "What did you see?" :
+                                            kind === "meet" ?
+                                                "Who did you meet & what did they say?" :
+                                                "What's on your mind?"
+                                        }
                                     </Label>
                                     <div className="flex gap-3 rounded-xl border bg-background p-3">
                                         <Avatar className="mt-0.5 h-10 w-10 shrink-0">
@@ -318,7 +323,9 @@ export default function FeedNew() {
                                                             : "Quick note, observation, or thought from the field…"
                                                 }
                                             />
-                                            <div className="mt-1 text-right text-[11px] text-muted-foreground">{text.length}/500</div>
+                                            <div className="mt-1 text-right text-[11px] text-muted-foreground">
+                                                {text.length}/500
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -527,19 +534,19 @@ export default function FeedNew() {
                             )}
 
                             {kind !== "expense" && (
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="loc">Location (optional)</Label>
-                                        <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Bangkok, Thailand" />
+                                <>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="loc">Location (optional)</Label>
+                                            <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Bangkok, Thailand" />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="tags">Tags (comma separated)</Label>
+                                            <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="noodles, retail, idea" />
+                                        </div>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="tags">Tags (comma separated)</Label>
-                                        <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="noodles, retail, idea" />
-                                    </div>
-                                </div>
-                            )}
-                            {kind !== "expense" && (
-                                <PhotoUploader photos={photos} onChange={setPhotos} label="Photos" />
+                                    <PhotoUploader photos={photos} onChange={setPhotos} label="Photos" />
+                                </>
                             )}
                             <div className="flex justify-end gap-2">
                                 <Button
