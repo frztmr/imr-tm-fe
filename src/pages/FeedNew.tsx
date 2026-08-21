@@ -46,7 +46,7 @@ const EXPENSE_CATEGORIES: ExpenseCategory[] = [
     "Laundry", "Entertainment", "Other",
 ];
 
-export default function NewPost() {
+export default function FeedNew() {
 
     const navigate = useNavigate();
     // const dispatch = useAppDispatch();

@@ -15,7 +15,7 @@ import MainLayout from "./components/layout/MainLayout";
 // =============== PAGES ================== //
 import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
-import NewPost from "./pages/Feed.New";
+import NewPost from "./pages/NewPost";
 import NotFound from "./pages/NotFound";
 
 import TripIndex from "./pages/trip/Trip.Index";
