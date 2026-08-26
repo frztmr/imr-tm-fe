@@ -7,7 +7,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { NavItem } from "./types";
 import CreateMenu from "./CreateMenu";
-import { renderItem } from "./renderItem";
+import { renderItem } from "./RenderItem";
 
 interface TopBarProps {
   nav: NavItem[];
