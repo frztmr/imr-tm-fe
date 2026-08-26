@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import type { NavItem } from "./navbar/types";
 import CreateMenu from "./navbar/CreateMenu";
 import TopBar from "./navbar/TopBar";
-import { renderItem } from "./navbar/renderItem";
+import { renderItem } from "./navbar/RenderItem";
 
 //nav menu ini nanti didapat dari database
 //ini semendara hardcode. 
@@ -63,8 +63,7 @@ const NavBar = (
 
     // ini untuk notifikasi 
     // melihat berapa notifikasi yang belum terlihat
-    // const unread = useUnreadCount();
-    const unread = 0;
+    // const unread = useUnreadCount(); 
 
     const location = useLocation();
     const pathname = location.pathname;

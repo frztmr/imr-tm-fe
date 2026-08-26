@@ -38,7 +38,7 @@ export default function CreateMenu({ trigger }: CreateMenuProps) {
                 <DropdownMenuItem asChild>
                     <Link to="/feed/new"><PenSquare className="mr-2 h-4 w-4" /> New post</Link>
                 </DropdownMenuItem>
-                {active && (
+                {/* {active && (
                     <>
                         <DropdownMenuItem asChild>
                             <Link to={`/trips/${active.id}/capture`}
@@ -60,11 +60,11 @@ export default function CreateMenu({ trigger }: CreateMenuProps) {
                             </Link>
                         </DropdownMenuItem>
                     </>
-                )}
+                )} */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                {/* <DropdownMenuItem asChild>
                     <Link to="/trips/new"><Plane className="mr-2 h-4 w-4" /> New trip tag</Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
             </DropdownMenuContent>
         </DropdownMenu>
     );
