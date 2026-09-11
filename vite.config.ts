@@ -10,8 +10,8 @@ export default defineConfig(({ mode }) => ({
       interval: 1000, // slower but more stable
     },
     host: "::",
-    port: 8989,
-    // port: 80,
+    // port: 8989,
+    port: 80,
     // port: 5173,
   },
   resolve: {

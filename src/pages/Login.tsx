@@ -1,8 +1,3 @@
-// import {
-//     createFileRoute,
-//     Link,
-//     // useNavigate
-// } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import {
     Card,
@@ -14,10 +9,10 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../config/ThemeToggle";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertTriangle } from "lucide-react";
 import Axios from "../config/axios";
 import { toast } from "sonner";
 
@@ -25,46 +20,102 @@ const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false); 
+    const [showPassword, setShowPassword] = useState(false);
 
-
-    // const accounts = useAppSelector((s) => s.auth.accounts);
-    const [email, setEmail] = useState("");
-    // const [password, setPassword] = useState("");
-
-    const submit = (e: React.FormEvent) => {
-        toast.success(`login succes, hello!`);
-        e.preventDefault();
-        const acc = email.toLowerCase() === email.trim().toLowerCase() && password === password;
-        if (!acc) { toast.error("Invalid email or password"); return; }
-        // dispatch(setCurrentUser(acc.id));
-        toast.success(`login succes, hello!`);
-        // navigate("/");
-    };
-
+    // Availability check state
+    const [checking, setChecking] = useState(true);
+    const [isReady, setIsReady] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast.success("Login successful");
-        // try {
-        //     const response = await Axios.post("/auth/login", {
-        //         uname: username,
-        //         pswd: password,
-        //     });
+        try {
+            const response = await Axios.post("/auth/login", {
+                uname: username,
+                pswd: password,
+            });
 
-        //     console.log("response", response)
-        //     if (response.status === 200) {
-        //         toast.success("Login successful");
-        //         // You might want to store the token here if returned
-        //         // localStorage.setItem("token", response.data.token); 
-        //         // navigate("/");
-        //     }
-        // } catch (error: any) {
-        //     console.error("Login failed:", error);
-        //     toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
-        // }
+            console.log("response", response);
+            if (response.status === 200) {
+                toast.success("Login successful");
+                // localStorage.setItem("token", response.data.token);
+                // navigate("/");
+            }
+        } catch (error: any) {
+            console.error("Login failed:", error);
+            toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
+        }
     };
 
+    useEffect(() => {
+        let isMounted = true;
+
+        const loginAvailCheck = async () => {
+            try {
+                const response = await Axios.get("/auth/check"); 
+
+                if (!isMounted) return;
+
+                const { msg, ready } = response.data || {};
+
+                if (response.status === 200 && ready === true) {
+                    setIsReady(true);
+                    toast.success(msg || "Ready to login");
+                } else {
+                    setIsReady(false);
+                    toast.error(msg || "Service unavailable");
+                }
+            } catch (error: any) {
+                console.error("Login check failed:", error);
+                if (!isMounted) return;
+                setIsReady(false);
+                toast.error(error.response?.data?.msg || error.response?.data?.message || "Whoops!");
+            } finally {
+                if (isMounted) setChecking(false);
+            }
+        };
+
+        loginAvailCheck();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    // Loading state
+    if (checking) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+                <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                    <p className="text-sm">Checking availability...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Maintenance state
+    if (!isReady) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative">
+                <div className="absolute top-4 right-4">
+                    <ThemeToggle />
+                </div>
+                <Card className="w-full max-w-md">
+                    <CardHeader className="space-y-1 items-center text-center">
+                        <AlertTriangle className="h-10 w-10 text-yellow-500 mb-2" />
+                        <CardTitle className="text-2xl font-bold">
+                            Under Maintenance
+                        </CardTitle>
+                        <CardDescription>
+                            This service is currently unavailable. Please check back later.
+                        </CardDescription>
+                    </CardHeader>
+                </Card>
+            </div>
+        );
+    }
+
+    // Ready state — show login form
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative">
             <div className="absolute top-4 right-4">
@@ -73,7 +124,6 @@ const Login = () => {
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                        {/* <LogIn className="h-5 w-5 text-blue-600" /> */}
                         Sign in
                     </CardTitle>
                     <CardDescription>
@@ -143,14 +193,11 @@ const Login = () => {
                         </p>
                     </div>
                     <p className="w-full rounded-md border bg-muted/40 p-2 text-xs text-muted-foreground">
-                        {/* Dev seeds — admin: <code>admin@imrc.example</code> / <code>admin123</code>; user:{" "}
-                        <code>andre.wijaya@imrc.example</code> / <code>user1234</code> */}
                         this test platform is on progress
                     </p>
                 </CardFooter>
             </Card>
         </div>
-
     );
 };
 
