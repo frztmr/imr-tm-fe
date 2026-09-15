@@ -38,13 +38,16 @@ const Login = () => {
             if (response.status === 200) {
                 toast.success("Login successful");
                 // localStorage.setItem("token", response.data.token);
-                navigate("/");
+                // navigate("/");
             } else if (response.status === 201) {
                 toast.success(`${response.data.msg}`);
+            } else if (response.status === 500) {
+                toast.error(`Whoops! Something wrong but its not your fault!`);
+
             }
         } catch (error: any) {
             console.error("Login failed:", error);
-            toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
+            toast.error(`Whoops! Something wrong but its not your fault!`);
         }
     };
 
@@ -139,7 +142,7 @@ const Login = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="username">
-                                Email
+                                ID, Email, or Hots Account
                             </Label>
                             <Input
                                 id="username"
