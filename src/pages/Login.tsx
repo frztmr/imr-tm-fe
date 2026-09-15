@@ -24,7 +24,7 @@ const Login = () => {
 
     // Availability check state
     const [checking, setChecking] = useState(true);
-    const [isReady, setIsReady] = useState(false);
+    const [isReady, setIsReady] = useState(false); 
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,11 +34,13 @@ const Login = () => {
                 pswd: password,
             });
 
-            console.log("response", response);
+            console.log("response.data", response.data.msg);
             if (response.status === 200) {
                 toast.success("Login successful");
                 // localStorage.setItem("token", response.data.token);
-                // navigate("/");
+                navigate("/");
+            } else if (response.status === 201) {
+                toast.success(`${response.data.msg}`);
             }
         } catch (error: any) {
             console.error("Login failed:", error);
