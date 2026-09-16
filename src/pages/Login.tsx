@@ -38,7 +38,7 @@ const Login = () => {
             if (response.status === 200) {
                 toast.success("Login successful");
                 // localStorage.setItem("token", response.data.token);
-                // navigate("/");
+                navigate("/");
             } else if (response.status === 201) {
                 toast.success(`${response.data.msg}`);
             } else if (response.status === 500) {

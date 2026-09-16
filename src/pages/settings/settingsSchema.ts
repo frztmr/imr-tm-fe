@@ -163,6 +163,7 @@ export const settingsCategories: SettingCategory[] = [
       },
     ],
   },
+   
 ];
 
 export const adminScopeIcons = { country: Globe2, group: ShieldCheck, user: User };
