@@ -24,7 +24,7 @@ const Login = () => {
 
     // Availability check state
     const [checking, setChecking] = useState(true);
-    const [isReady, setIsReady] = useState(false); 
+    const [isReady, setIsReady] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,7 +37,9 @@ const Login = () => {
             console.log("response.data", response.data.msg);
             if (response.status === 200) {
                 toast.success("Login successful");
-                // localStorage.setItem("token", response.data.token);
+                console.log("response login", response.data.data)
+
+                // localStorage.setItem("token", response.data.token); //set token. jangan dipakai ini 
                 navigate("/");
             } else if (response.status === 201) {
                 toast.success(`${response.data.msg}`);
@@ -56,7 +58,7 @@ const Login = () => {
 
         const loginAvailCheck = async () => {
             try {
-                const response = await Axios.get("/auth/check"); 
+                const response = await Axios.get("/auth/check");
 
                 if (!isMounted) return;
 

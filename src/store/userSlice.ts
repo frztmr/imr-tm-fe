@@ -4,17 +4,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // Ini untuk typescript
 interface userState {
     userData: {
-        active: number;
-        employee_id: number;
-        finished_date: null | string;
-        firstname: string;
-        lastname: string;
-        login_trial_time: string;
-        registration_nr: string;
-        status: number;
-        type_id: number;
-        uid: string;
-        user_level: number;
+        pid: String;
+        role_code: String;
+        role_name: String;
+        uname: String;
     },
     userConfig: {
         dayTheme: true;
@@ -25,17 +18,10 @@ interface userState {
 //ini untuk inisiasi dan untuk mereset data
 const initialState: userState = {
     userData: {
-        active: 0,
-        employee_id: 0,
-        finished_date: null,
-        firstname: '',
-        lastname: '',
-        login_trial_time: '',
-        registration_nr: '',
-        status: 0,
-        type_id: 0,
-        uid: '',
-        user_level: 0,
+        pid: '',
+        role_code:'',
+        role_name: '',
+        uname: ''
     },
     userConfig: {
         dayTheme: true
