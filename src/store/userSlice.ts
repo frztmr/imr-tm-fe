@@ -1,25 +1,14 @@
 // untuk menyimpan data user ke redux
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Ini untuk typescript
-interface userState {
-    userData: {
-        pid: String;
-        role_code: String;
-        role_name: String;
-        uname: String;
-    },
-    userConfig: {
-        dayTheme: true;
-    }
-}
+import { userState } from './types'
 
 
 //ini untuk inisiasi dan untuk mereset data
 const initialState: userState = {
     userData: {
         pid: '',
-        role_code:'',
+        role_code: '',
         role_name: '',
         uname: ''
     },

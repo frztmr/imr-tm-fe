@@ -15,6 +15,9 @@ import ThemeToggle from "../config/ThemeToggle";
 import { Eye, EyeOff, Loader2, AlertTriangle } from "lucide-react";
 import Axios from "../config/axios";
 import { toast } from "sonner";
+import { userState } from '../store/types'
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "@/store/userSlice"; 
 
 const Login = () => {
     const navigate = useNavigate();
@@ -25,6 +28,8 @@ const Login = () => {
     // Availability check state
     const [checking, setChecking] = useState(true);
     const [isReady, setIsReady] = useState(false);
+
+    const dispatch = useDispatch() 
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,8 +44,11 @@ const Login = () => {
                 toast.success("Login successful");
                 console.log("response login", response.data.data)
 
+                dispatch(login(response.data.data))
                 // localStorage.setItem("token", response.data.token); //set token. jangan dipakai ini 
+
                 navigate("/");
+
             } else if (response.status === 201) {
                 toast.success(`${response.data.msg}`);
             } else if (response.status === 500) {

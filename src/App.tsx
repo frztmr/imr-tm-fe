@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { userState } from './store/types'
+import { useDispatch, useSelector } from "react-redux";
 const queryClient = new QueryClient();
 
 // ============= COMPONENT ================ //
@@ -41,57 +42,61 @@ import PeoplePage from './pages/PeoplePage'
 
 import SearchPage from './pages/SearchPage'
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            element={
-              <NavBar /> //Ini untuk navbarnya. jadi global dia
-            }
-          >
-            <Route path="/" element={<HomePage />} />
-            {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
+const App = () => {
+  const userDatas = useSelector((state: userState) => state.userData);
+  console.log("userDatas redux", userDatas)
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              element={
+                <NavBar /> //Ini untuk navbarnya. jadi global dia
+              }
+            >
+              <Route path="/" element={<HomePage />} />
+              {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
 
-            <Route path="/feed/new" element={<FeedNew />} />
-
-
-            <Route path="/trips/" element={<TripIndex />} />
-            <Route path="/trips/new" element={<NewTrip />} />
-            <Route path="/trips/:tripId" element={<TripDetail />} />
-
-            <Route path="/notifications" element={<NotificationPage />} />
+              <Route path="/feed/new" element={<FeedNew />} />
 
 
+              <Route path="/trips/" element={<TripIndex />} />
+              <Route path="/trips/new" element={<NewTrip />} />
+              <Route path="/trips/:tripId" element={<TripDetail />} />
 
-            <Route path="/messages" element={<MessagesPage />} />
-
-
-            <Route path="/reports" element={<Reports />} />
-
-            <Route path="/u/:userId" element={<User />} />
+              <Route path="/notifications" element={<NotificationPage />} />
 
 
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
 
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
 
-            <Route path="/people" element={<PeoplePage />} />
-            <Route path="/search" element={<SearchPage />} />
 
-            <Route path="*" element={<NotFound />} />  {/* Ini untuk not found page*/}
-          </Route>
-        </Routes>
+              <Route path="/reports" element={<Reports />} />
 
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+              <Route path="/u/:userId" element={<User />} />
+
+
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
+
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/settings" element={<AdminSettingsPage />} />
+
+              <Route path="/people" element={<PeoplePage />} />
+              <Route path="/search" element={<SearchPage />} />
+
+              <Route path="*" element={<NotFound />} />  {/* Ini untuk not found page*/}
+            </Route>
+          </Routes>
+
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  )
+};
 
 export default App;
