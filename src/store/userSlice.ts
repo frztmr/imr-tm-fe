@@ -6,7 +6,7 @@ import { userState } from './types'
 
 //ini untuk inisiasi dan untuk mereset data
 const initialState: userState = {
-    userData: {
+    personalData: {
         pid: '',
         role_code: '',
         role_name: '',
@@ -22,12 +22,12 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         //add data ke redux
-        login: (state, action: PayloadAction<userState['userData']>) => {
-            state.userData = action.payload;
+        login: (state, action: PayloadAction<userState['personalData']>) => {
+            state.personalData = action.payload;
         },
         //menghapus dan inisasi data ke redux
         logout: (state) => {
-            state.userData = initialState.userData
+            state.personalData = initialState.personalData
         }
         // Add other reducers as needed
     },

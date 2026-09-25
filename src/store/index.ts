@@ -4,8 +4,8 @@ import userReducer from './userSlice'; // Import your slice
 
 const store = configureStore({
   reducer: {
-    inventory: inventoryReducer, // Add your reducer here
-    userData: userReducer,
+    // inventory: inventoryReducer, // Add your reducer here
+    personalData: userReducer,
   },
 });
 

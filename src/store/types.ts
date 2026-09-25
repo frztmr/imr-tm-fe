@@ -2,7 +2,7 @@ export type TripStatus = "planned" | "in_progress" | "completed";
 
 // Ini untuk typescript
 export interface userState {
-    userData: {
+    personalData: {
         pid: String;
         role_code: String;
         role_name: String;

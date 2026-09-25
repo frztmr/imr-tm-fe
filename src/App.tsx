@@ -43,8 +43,17 @@ import PeoplePage from './pages/PeoplePage'
 import SearchPage from './pages/SearchPage'
 
 const App = () => {
-  const userDatas = useSelector((state: userState) => state.userData);
-  console.log("userDatas redux", userDatas)
+
+  const personalData = useSelector((state: userState) => state.personalData);
+  console.log("state.personal redux di app.tsx", personalData)
+  // // next, ini ada request bawa user_id untuk ke backend untuk access token dan refresh token
+
+  if (!personalData) {
+    console.log("personalData is invalid ", personalData)
+  } else {
+    console.log("personalData is is valid ", personalData)
+    
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { LogIn } from "lucide-react";
 import type { NavItem } from "./types";
+import { useDispatch, useSelector } from "react-redux";
+import { userState } from "@/store/types";
 
 interface RenderItemProps {
   n: NavItem;
@@ -15,6 +17,14 @@ export function renderItem({ n, variant, activeFor, current }: RenderItemProps) 
   const active = activeFor(n);
   // const badge = n.key === "/notifications" && unread > 0 ? unread : 0;
   const badge = 0;
+
+  const userState = useSelector((state: userState) => state.personalData).personalData;
+  // console.log("uname data at RenderItem", userState)
+  // console.log("state.userData.personalData redux di RenderItem", personalData)
+
+  let uname = userState?.uname ? `/u/${userState?.uname}` : "/login";
+  console.log("uname", uname)
+
 
   const desktopCls = cn(
     "relative flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
@@ -58,7 +68,8 @@ export function renderItem({ n, variant, activeFor, current }: RenderItemProps) 
     return (
       <Link
         key={n.key}
-        to="/u/$userId"
+        // to="/u/$userId"
+        to={uname}
         // params={{ userId: encodeURIComponent(current!.name) }}
         aria-label={n.label}
         className={variant === "desktop" ? desktopCls : mobileCls}
@@ -78,4 +89,5 @@ export function renderItem({ n, variant, activeFor, current }: RenderItemProps) 
       {inner}
     </Link>
   );
+
 }

@@ -17,9 +17,10 @@ import Axios from "../config/axios";
 import { toast } from "sonner";
 import { userState } from '../store/types'
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "@/store/userSlice"; 
+import { login } from "@/store/userSlice";
 
 const Login = () => {
+    const dispatch = useDispatch()
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -29,7 +30,7 @@ const Login = () => {
     const [checking, setChecking] = useState(true);
     const [isReady, setIsReady] = useState(false);
 
-    const dispatch = useDispatch() 
+
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,12 +40,11 @@ const Login = () => {
                 pswd: password,
             });
 
-            console.log("response.data", response.data.msg);
             if (response.status === 200) {
-                toast.success("Login successful");
-                console.log("response login", response.data.data)
+                toast.success("Login successful"); 
+                console.log("response.data.personal di login", response.data.personal);
 
-                dispatch(login(response.data.data))
+                dispatch(login(response.data.personal)) // ini redux, dispatch data users
                 // localStorage.setItem("token", response.data.token); //set token. jangan dipakai ini 
 
                 navigate("/");
