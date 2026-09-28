@@ -18,12 +18,9 @@ export function renderItem({ n, variant, activeFor, current }: RenderItemProps) 
   // const badge = n.key === "/notifications" && unread > 0 ? unread : 0;
   const badge = 0;
 
-  const userState = useSelector((state: userState) => state.personalData).personalData;
-  // console.log("uname data at RenderItem", userState)
-  // console.log("state.userData.personalData redux di RenderItem", personalData)
-
+  const userState = useSelector((state: userState) => state.personalData).personalData; 
   let uname = userState?.uname ? `/u/${userState?.uname}` : "/login";
-  console.log("uname", uname)
+  console.log("uname at RenderItem.tsx", uname)
 
 
   const desktopCls = cn(

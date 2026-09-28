@@ -1,59 +1,81 @@
+
+
+// =============== REACT REQUIREMENT ============= //
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useNavigate, BrowserRouter, Routes, Route } from "react-router-dom";
+
+// ============== REDUX REQUIREMENT ============== //
 import { userState } from './store/types'
 import { useDispatch, useSelector } from "react-redux";
-const queryClient = new QueryClient();
+import { login } from "@/store/userSlice";
+import Axios from "./config/axios";
 
-// ============= COMPONENT ================ //
+
+// ================ COMPONENT =================== //
 import NavBar from "@/components/NavBar";
 import MainLayout from "./components/layout/MainLayout";
+const queryClient = new QueryClient();
 
 
-
-// =============== PAGES ================== //
+// ================== PAGES ===================== //
 import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import FeedNew from "./pages/FeedNew";
 import NotFound from "./pages/NotFound";
-
 import TripIndex from "./pages/trip/Trip.Index";
 import NewTrip from "./pages/trip/Trip.New";
 import TripDetail from "./pages/trip/Trip.Detail";
-
 import NotificationPage from "./pages/Notification";
-
 import MessagesPage from "./pages/Messages";
-
-
 import Reports from "./pages/Reports";
-
 import User from './pages/UserPage'
-
 import Settings from './pages/Settings'
 import CategoryItemsPage from './pages/settings/'
-
 import AdminPage from './pages/AdminPage'
 import AdminSettingsPage from './pages/settings/AdminSettingsPage'
-
 import PeoplePage from './pages/PeoplePage'
-
 import SearchPage from './pages/SearchPage'
 
 const App = () => {
 
-  const personalData = useSelector((state: userState) => state.personalData);
-  console.log("state.personal redux di app.tsx", personalData)
+  const dispatch = useDispatch()
+  // const navigate = useNavigate();
+
+  const personalData = useSelector((state: userState) => state.personalData).personalData.pid;
+
   // // next, ini ada request bawa user_id untuk ke backend untuk access token dan refresh token
 
   if (!personalData) {
-    console.log("personalData is invalid ", personalData)
+    //sudah tidak ada data user di redux
+    Axios.get('/auth/keep_login')
+      .then((res) => {
+        if (res.status === 200) {
+          dispatch(login(res.data.personal))
+
+          console.log("res.status === 200", res)
+        } else if (res.status === 201) {
+          // navigate("/login");
+          console.log("res.status === 201", res)
+        }
+        // console.log("res att app tsx", res)
+      })
+      .catch((err) => {
+        console.log("err at app.tsx", err)
+        // navigate("/login");
+      })
+    console.log("personalData at app.tsx is invalid ", personalData)
   } else {
-    console.log("personalData is is valid ", personalData)
-    
+    //masih ada data user di redux
+    console.log("personalData at app.tsx is is valid ", personalData)
   }
+  
+  // // Nyalakan ini hanya jika anda mau testing
+  // const after_treatment = useSelector((state: userState) => state.personalData).personalData;
+  // console.log("state.personal redux di app.tsx: after_treatment", after_treatment)
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

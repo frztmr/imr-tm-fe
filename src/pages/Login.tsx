@@ -45,8 +45,7 @@ const Login = () => {
                 console.log("response.data.personal di login", response.data.personal);
 
                 dispatch(login(response.data.personal)) // ini redux, dispatch data users
-                // localStorage.setItem("token", response.data.token); //set token. jangan dipakai ini 
-
+                
                 navigate("/");
 
             } else if (response.status === 201) {
