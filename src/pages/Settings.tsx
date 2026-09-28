@@ -24,9 +24,8 @@ import { settingsCategories } from "./settings/settingsSchema";
 import { SettingsCategories } from "./settings/index";
 
 //Redux
-// import { useAppSelector, type RootState } from "@/store";
-// import { useAppDispatch } from "@/store";
-// import { logout } from "@/store/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { login, logout } from "@/store/userSlice";
 
 //Typescript and Util
 import { mockAccounts } from '../data/mockData'
@@ -38,6 +37,7 @@ export default function Settings() {
     // const resolved = useAppSelector((s: RootState) => resolveSettings(s, currentUserId));
     // const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const dispatch = useDispatch()
 
     const currentUserId = mockAccounts[0]
     const current = mockAccounts[0]; // NOTE: you had `mockAccounts[0].id` — that's a bug, should be the account object
@@ -63,8 +63,9 @@ export default function Settings() {
                 toast.success("You've been signed out", {
                     description: "See you again soon!",
                     duration: 3000,
-                }); 
+                });
                 // Redirect after toast
+                dispatch(logout(response.data.personal))
                 navigate("/login");
             }
         } catch (error) {

@@ -44,9 +44,7 @@ const App = () => {
   const dispatch = useDispatch()
   // const navigate = useNavigate();
 
-  const personalData = useSelector((state: userState) => state.personalData).personalData.pid;
-
-  // // next, ini ada request bawa user_id untuk ke backend untuk access token dan refresh token
+  const personalData = useSelector((state: userState) => state.personalData).personalData.pid; // cek PID atau data di redux
 
   if (!personalData) {
     //sudah tidak ada data user di redux
@@ -59,6 +57,7 @@ const App = () => {
         } else if (res.status === 201) {
           // navigate("/login");
           console.log("res.status === 201", res)
+          // navigate("/login");
         }
         // console.log("res att app tsx", res)
       })
@@ -69,9 +68,10 @@ const App = () => {
     console.log("personalData at app.tsx is invalid ", personalData)
   } else {
     //masih ada data user di redux
+    // navigate("/login");
     console.log("personalData at app.tsx is is valid ", personalData)
   }
-  
+
   // // Nyalakan ini hanya jika anda mau testing
   // const after_treatment = useSelector((state: userState) => state.personalData).personalData;
   // console.log("state.personal redux di app.tsx: after_treatment", after_treatment)
@@ -83,44 +83,49 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={<Login />} />
             <Route
               element={
                 <NavBar /> //Ini untuk navbarnya. jadi global dia
               }
             >
-              <Route path="/" element={<HomePage />} />
-              {/* <Route path="/your-page/:parameterThatPassToJsx" element={<Element />} /> */}
-
-              <Route path="/feed/new" element={<FeedNew />} />
-
-
-              <Route path="/trips/" element={<TripIndex />} />
-              <Route path="/trips/new" element={<NewTrip />} />
-              <Route path="/trips/:tripId" element={<TripDetail />} />
-
-              <Route path="/notifications" element={<NotificationPage />} />
-
-
-
-              <Route path="/messages" element={<MessagesPage />} />
-
-
-              <Route path="/reports" element={<Reports />} />
-
+              <Route path="/login" element={<Login />} />
+              <Route path="*" element={<NotFound />} />  {/* Ini untuk not found page*/}
               <Route path="/u/:userId" element={<User />} />
 
+              {personalData ?
+                <>
+                  <Route path="*" element={<NotFound />} />  {/* Ini untuk not found page*/}
+                  <Route path="/" element={<HomePage />} />
 
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
+                  <Route path="/feed/new" element={<FeedNew />} />
 
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
-              <Route path="/people" element={<PeoplePage />} />
-              <Route path="/search" element={<SearchPage />} />
+                  <Route path="/trips/" element={<TripIndex />} />
+                  <Route path="/trips/new" element={<NewTrip />} />
+                  <Route path="/trips/:tripId" element={<TripDetail />} />
 
-              <Route path="*" element={<NotFound />} />  {/* Ini untuk not found page*/}
+                  <Route path="/notifications" element={<NotificationPage />} />
+
+                  <Route path="/messages" element={<MessagesPage />} />
+
+                  <Route path="/reports" element={<Reports />} />
+
+                  <Route path="/u/:userId" element={<User />} />
+
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/settings/:categoryId" element={<CategoryItemsPage />} />
+
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/admin/settings" element={<AdminSettingsPage />} />
+
+                  <Route path="/people" element={<PeoplePage />} />
+                  <Route path="/search" element={<SearchPage />} />
+
+                </> : null
+              }
+
+
+
             </Route>
           </Routes>
 

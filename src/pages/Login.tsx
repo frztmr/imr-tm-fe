@@ -1,3 +1,10 @@
+
+
+// React Requirement
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+// Component
 import { Button } from "../components/ui/button";
 import {
     Card,
@@ -9,19 +16,25 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../config/ThemeToggle";
 import { Eye, EyeOff, Loader2, AlertTriangle } from "lucide-react";
-import Axios from "../config/axios";
 import { toast } from "sonner";
+
+//Redux
 import { userState } from '../store/types'
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "@/store/userSlice";
 
+// Utility
+import Axios from "../config/axios";
+
+
+
 const Login = () => {
+
     const dispatch = useDispatch()
     const navigate = useNavigate();
+    
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -41,11 +54,11 @@ const Login = () => {
             });
 
             if (response.status === 200) {
-                toast.success("Login successful"); 
+                toast.success("Login successful");
                 console.log("response.data.personal di login", response.data.personal);
 
                 dispatch(login(response.data.personal)) // ini redux, dispatch data users
-                
+
                 navigate("/");
 
             } else if (response.status === 201) {
