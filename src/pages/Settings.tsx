@@ -45,6 +45,7 @@ export default function Settings() {
     const [categoryId, setCategoryId] = useState<Number>(0);
 
     const handleLogout = async () => {
+        navigate("/login");
         // TODO: replace with your real logout logic
         // dispatch(logout());
 
@@ -60,27 +61,33 @@ export default function Settings() {
                     duration: 3000,
                 });
             } else {
+                dispatch(logout())
+                navigate("/login");
                 toast.success("You've been signed out", {
                     description: "See you again soon!",
                     duration: 3000,
                 });
                 // Redirect after toast
-                dispatch(logout(response.data.personal))
-                navigate("/login");
+                // window.location.reload 
             }
         } catch (error) {
+            dispatch(logout())
+            navigate("/login");
             toast.error("Whoops!", {
                 description: "Something Wrong but its not your fault!",
                 duration: 3000,
             });
-
+            // window.location.reload
+            
         } finally {
+            dispatch(logout())
+            
+            navigate("/login");
             toast.success("You've been signed out", {
                 description: "See you again soon!",
                 duration: 3000,
             });
-            // Redirect after toast
-            navigate("/login");
+            // window.location.reload 
 
         }
 
