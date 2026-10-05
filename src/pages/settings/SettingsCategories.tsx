@@ -1,13 +1,13 @@
 
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input"; // adjust import
 import { LucideIcon } from "lucide-react";
-import API_CONF from "../config/axios";
+import API_CONF from "../../config/axios";
 
 interface SettingsCategory {
   id: string;
@@ -43,6 +43,18 @@ export function SettingsCategories({
     )
     : categories;
 
+  useEffect(() => {
+    API_CONF.get('/ui/settings')
+      .then((res) => {
+        console.log("results at /ui/settings ", res.data)
+        setMenuList(results)
+      })
+      .catch(
+        (error) => {
+          console.log("error at : settings.tsx while get settings", error)
+        })
+
+  }, []);
   return (
     <div className="space-y-4">
       {showSearch && (

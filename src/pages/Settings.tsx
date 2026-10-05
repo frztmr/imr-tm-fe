@@ -101,18 +101,18 @@ export default function Settings() {
     };
 
 
-    useEffect(() => {
-        API_CONF.get('/ui/settings')
-            .then((res) => {
-                console.log("results at /ui/settings ", res.data)
-                // setSettingsCategories(results)
-            })
-            .catch(
-                (error) => {
-                    console.log("error at : settings.tsx while get settings", error)
-                })
+    // useEffect(() => {
+    //     API_CONF.get('/ui/settings')
+    //         .then((res) => {
+    //             console.log("results at /ui/settings ", res.data)
+    //             // setSettingsCategories(results)
+    //         })
+    //         .catch(
+    //             (error) => {
+    //                 console.log("error at : settings.tsx while get settings", error)
+    //             })
 
-    }, []);
+    // }, []);
 
     return (
         <>
