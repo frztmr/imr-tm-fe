@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input"; // adjust import
 import { LucideIcon } from "lucide-react";
+import API_CONF from "../config/axios";
 
 interface SettingsCategory {
   id: string;
@@ -24,20 +25,22 @@ interface SettingsCategoriesProps {
   showManagedCount?: boolean;
 }
 
-export function SettingsCategories({ 
-  categories, 
+export function SettingsCategories({
+  categories,
   resolvedSettings,
   onCategoryClick,
   showSearch = false,
   showManagedCount = true
 }: SettingsCategoriesProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState("");
+  const [menuList, setMenuList] = useState<SettingsCategory[]>();
 
-  const filteredCategories = searchTerm 
-    ? categories.filter(cat => 
-        cat.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cat.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  const filteredCategories = searchTerm
+    ? categories.filter(cat =>
+      cat.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cat.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     : categories;
 
   return (
@@ -62,8 +65,8 @@ export function SettingsCategories({
         ) : (
           filteredCategories.map((cat) => {
             const keys = cat.groups.flatMap((g) => g.fields.map((f) => f.key));
-            const managed = resolvedSettings 
-              ? keys.filter((k) => resolvedSettings[k]?.locked).length 
+            const managed = resolvedSettings
+              ? keys.filter((k) => resolvedSettings[k]?.locked).length
               : 0;
             const Icon = cat.icon;
 
