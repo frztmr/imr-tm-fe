@@ -1,6 +1,6 @@
 //React Requirement
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 //Component
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import { toast } from "sonner"; // or your preferred toast library
 // import { resolveSettings } from "./settings/effectiveSettings";
 import { settingsCategories } from "./settings/settingsSchema";
 import { SettingsCategories } from "./settings/index";
+import { SettingCategory } from './settings/settingsSchema'
 
 //Redux
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +31,7 @@ import { login, logout } from "@/store/userSlice";
 //Typescript and Util
 import { mockAccounts } from '../data/mockData'
 import Axios from "../config/axios";
+import API_CONF from "../config/axios";
 
 export default function Settings() {
     // const currentUserId = useAppSelector((s) => s.auth.currentUserId);
@@ -43,14 +45,18 @@ export default function Settings() {
     const current = mockAccounts[0]; // NOTE: you had `mockAccounts[0].id` — that's a bug, should be the account object
     // const resolved = useAppSelector((s: RootState) => resolveSettings(s, currentUserId));
     const [categoryId, setCategoryId] = useState<Number>(0);
+    // const [settingsCategories, setSettingsCategories] = useState<SettingCategory>(0);
+
+
+    const adminData = {
+        link: "/admin/settings",
+        logo: Shield,
+        title: 'Global settings (Admin)',
+        subtitle: 'Org defaults and policies per country, custom group or specific user.',
+    }
 
     const handleLogout = async () => {
         navigate("/login");
-        // TODO: replace with your real logout logic
-        // dispatch(logout());
-
-        // Clear any local storage / tokens if needed
-        // localStorage.removeItem("token");
         try {
             const response = await Axios.get("/auth/log_out");
 
@@ -78,10 +84,10 @@ export default function Settings() {
                 duration: 3000,
             });
             // window.location.reload
-            
+
         } finally {
             dispatch(logout())
-            
+
             navigate("/login");
             toast.success("You've been signed out", {
                 description: "See you again soon!",
@@ -93,6 +99,20 @@ export default function Settings() {
 
 
     };
+
+
+    useEffect(() => {
+        API_CONF.get('/ui/settings')
+            .then((res) => {
+                console.log("results at /ui/settings ", res.data)
+                // setSettingsCategories(results)
+            })
+            .catch(
+                (error) => {
+                    console.log("error at : settings.tsx while get settings", error)
+                })
+
+    }, []);
 
     return (
         <>
@@ -120,16 +140,16 @@ export default function Settings() {
 
                 {/* {current?.role === "admin" && ( */}
                 {/* ini validasi di level redux */}
-                <Link to="/admin/settings">
+                <Link to={adminData.link}>
                     <Card className="border-primary/40 transition hover:bg-accent">
                         <CardContent className="flex items-center gap-3 p-4">
                             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
                                 <Shield className="h-5 w-5" />
                             </span>
                             <div className="min-w-0 flex-1">
-                                <div className="font-medium">Global settings (Admin)</div>
+                                <div className="font-medium">{adminData.title}</div>
                                 <p className="truncate text-xs text-muted-foreground">
-                                    Org defaults and policies per country, custom group or specific user.
+                                    {adminData.subtitle}.
                                 </p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -138,7 +158,7 @@ export default function Settings() {
                 </Link>
                 {/* )} */}
 
-                {/* ===== Logout Button ===== */}
+                {/* ===== Global Logout Button ===== */}
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <button

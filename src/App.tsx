@@ -75,7 +75,7 @@ const AuthBootstrap = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-
+  
   return <>{children}</>;
 };
 
