@@ -21,6 +21,7 @@ import type { Kind, Visibility, ExpenseData, FeelingData } from "./feed/types";
 import type { Photo } from "@/store/types";
 import { useCurrentUser } from "@/lib/currentUser";
 import { mockTrips } from "@/data/mockData";
+import Axios from "../config/axios";
 
 export default function FeedNew() {
     const navigate = useNavigate();
@@ -55,10 +56,19 @@ export default function FeedNew() {
     const selectedTrip = trips.find((t) => t.id === tripId);
     const localCode = selectedTrip?.approval?.localCurrency || "";
 
-    const submit = (e: React.FormEvent) => {
+    async function uploadFile(file: File): Promise<{ id: string; url: string; name: string }> {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await Axios.post("/upload", form, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        return res.data; // { id, url, name }
+    }
+
+    const submit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validasi
+        // ===== Validasi =====
         if (kind === "expense") {
             if (!expense.desc.trim() || !Number(expense.amount)) {
                 toast.error("Add a description and an amount.");
@@ -68,13 +78,7 @@ export default function FeedNew() {
                 toast.error("Attach at least one receipt photo, or turn 'Receipt available' off.");
                 return;
             }
-            // TODO: dispatch(addExpense / addPost)
-            toast.success("Expense saved");
-            navigate(tripId ? `/trips/${tripId}/expenses` : "/");
-            return;
-        }
-
-        if (kind === "poll") {
+        } else if (kind === "poll") {
             const opts = pollOptions.map((o) => o.trim()).filter(Boolean);
             if (!pollQuestion.trim() || opts.length < 2) {
                 toast.error("Add a question and at least two options.");
@@ -85,9 +89,110 @@ export default function FeedNew() {
             return;
         }
 
-        // TODO: dispatch(addPost)
-        toast.success(visibility === "draft" ? "Saved as draft" : "Post published");
-        navigate("/");
+        try {
+            // ===== Upload photos (sequential) =====
+            const uploadedPhotos: { id: string; url: string; name: string }[] = [];
+            for (const p of photos) {
+                // p diasumsikan punya .file — sesuaikan dengan tipe Photo Anda
+                if (p.file) {
+                    const uploaded = await uploadFile(p.file);
+                    uploadedPhotos.push(uploaded);
+                } else {
+                    // sudah ter-upload sebelumnya (misal saat edit)
+                    uploadedPhotos.push({ id: p.id, url: p.url, name: "" });
+                }
+            }
+
+            // ===== Upload attachments (sequential) =====
+            const uploadedAttachments: { name: string; url: string; size: number; mimeType: string }[] = [];
+            for (const f of attachments) {
+                const uploaded = await uploadFile(f);
+                uploadedAttachments.push({
+                    name: uploaded.name,
+                    url: uploaded.url,
+                    size: f.size,
+                    mimeType: f.type,
+                });
+            }
+
+            // ===== Upload feeling photos (sequential) =====
+            const uploadedFeelingPhotos: { id: string; url: string; name: string }[] = [];
+            for (const p of feeling.photos) {
+                if (p.file) {
+                    const uploaded = await uploadFile(p.file);
+                    uploadedFeelingPhotos.push(uploaded);
+                } else {
+                    uploadedFeelingPhotos.push({ id: p.id, url: p.url, name: "" });
+                }
+            }
+
+            // ===== Bangun body =====
+            const trip = trips.find((t) => t.id === tripId);
+
+            const body = {
+                kind,
+                tag: trip ? { tripId: trip.id, tripTitle: trip.title, tripCountry: trip.country } : null,
+                text: text.trim() || null,
+                location: location.trim() || null,
+                contact: kind === "meet" ? contact.trim() || null : null,
+                impression: kind === "meet" ? impression.trim() || null : null,
+                expiresAt: kind === "see" ? expiresAt || null : null,
+
+                poll: kind === "poll"
+                    ? {
+                        question: pollQuestion.trim(),
+                        options: pollOptions
+                            .map((o) => o.trim())
+                            .filter(Boolean)
+                            .map((label, i) => ({ id: `o${i + 1}`, label, votes: [] })),
+                    }
+                    : null,
+
+                visibility,
+                allowedViewers: visibility === "restricted"
+                    ? allowedViewers.split(",").map((s) => s.trim()).filter(Boolean)
+                    : [],
+                teamId: visibility === "my_team" ? teamId.trim() || null : null,
+                status: visibility === "draft" ? "draft" : "published",
+
+                photos: uploadedPhotos,
+                attachments: uploadedAttachments,
+
+                expense: kind === "expense"
+                    ? {
+                        date: expense.date,
+                        description: expense.desc.trim(),
+                        category: expense.category,
+                        currency: expense.currency,
+                        localCurrency: expense.currency === "LOCAL" ? localCode || "Local" : null,
+                        amount: Number(expense.amount),
+                        receipt: expense.receipt,
+                        notes: expense.notes.trim() || null,
+                    }
+                    : null,
+
+                feeling: kind === "expense" && (feeling.rating > 0 || feeling.text.trim() || feeling.photos.length > 0)
+                    ? {
+                        rating: feeling.rating || null,
+                        text: feeling.text.trim() || null,
+                        photos: uploadedFeelingPhotos,
+                    }
+                    : null,
+            };
+
+            // ===== Kirim post =====
+            const res = await Axios.post("/post/new", body);
+            toast.success(visibility === "draft" ? "Saved as draft" : "Post published");
+
+            if (kind === "expense" && tripId) {
+                navigate(`/trips/${tripId}/expenses`);
+            } else {
+                navigate("/");
+            }
+        } catch (err) {
+            console.log("error create post", err);
+            toast.error("Failed to submit. Please try again.");
+        }
     };
 
     return (
