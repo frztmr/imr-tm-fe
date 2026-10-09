@@ -1,4 +1,3 @@
-
 // React Requirement
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
@@ -15,14 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { Sparkles, Eye, Users, PenSquare, Receipt, BarChart3, X, Plus } from "lucide-react";
+import { Sparkles, Eye, Users, PenSquare, Receipt, BarChart3, X, Plus, Paperclip } from "lucide-react";
 import { Star, Lock } from "lucide-react";
 
 //Redux
 // import { useAppDispatch, useAppSelector } from "@/store";
-// import { addPost } from "@/store/postsSlice";
+// import { addPost, updatePost } from "@/store/postsSlice";
 // import { addExpense } from "@/store/tripsSlice";
-
 
 //typescript, Utils, and Dummy Data
 import type { Photo, ExpenseCategory, ExpenseCurrency } from "@/store/types";
@@ -30,10 +28,14 @@ import { useCurrentUser } from "@/lib/currentUser";
 import { mockTrips } from "@/data/mockData";
 
 
+// ============================================================
+// Types & Constants
+// ============================================================
 
 type Kind = "post" | "see" | "meet" | "expense" | "poll";
+
 const KINDS: { id: Kind; label: string; icon: React.ComponentType<{ className?: string }>; hint: string }[] = [
-    { id: "post", label: "Post", icon: PenSquare, hint: "Share a quick note" },
+    { id: "post", label: "Quick Note", icon: PenSquare, hint: "Share a quick note" },
     { id: "see", label: "I see something", icon: Eye, hint: "Product / competitor sighting" },
     { id: "meet", label: "I meet someone", icon: Users, hint: "Conversation or meeting" },
     { id: "expense", label: "Expenses and Receipts", icon: Receipt, hint: "Log a trip expense" },
@@ -46,7 +48,58 @@ const EXPENSE_CATEGORIES: ExpenseCategory[] = [
     "Laundry", "Entertainment", "Other",
 ];
 
-export default function FeedNew() {
+type Visibility = "draft" | "only_me" | "everyone" | "my_team" | "restricted";
+
+const VISIBILITIES: { id: Visibility; label: string; hint: string }[] = [
+    { id: "everyone", label: "Everyone", hint: "Visible to all users" },
+    { id: "my_team", label: "My Team", hint: "Only your team members" },
+    { id: "only_me", label: "Only Me", hint: "Private to you" },
+    { id: "restricted", label: "Restricted", hint: "Only selected people" },
+    { id: "draft", label: "Save as Draft", hint: "Not published yet" },
+];
+
+// ============================================================
+// Props
+// ============================================================
+
+type InitialPost = {
+    id: string;
+    kind: Kind;
+    text: string;
+    location: string;
+    photos: Photo[];
+    attachments?: File[];
+    tripId?: string;
+    contact?: string;
+    impression?: string;
+    expiresAt?: string;
+    poll?: { question: string; options: { id: string; label: string; votes: string[] }[] };
+    visibility?: Visibility;
+    allowedViewers?: string[];
+    teamId?: string;
+    status?: "draft" | "published";
+    expense?: {
+        date: string;
+        description: string;
+        category: ExpenseCategory;
+        currency: ExpenseCurrency;
+        amount: number;
+        receipt: boolean;
+        notes: string;
+    };
+    feeling?: { rating: number; text: string; photos: Photo[] };
+};
+
+type FeedNewProps = {
+    initialPost?: InitialPost;
+    mode?: "create" | "edit";
+};
+
+// ============================================================
+// Komponen
+// ============================================================
+
+export default function FeedNew({ initialPost, mode = "create" }: FeedNewProps) {
 
     const navigate = useNavigate();
     // const dispatch = useAppDispatch();
@@ -55,6 +108,7 @@ export default function FeedNew() {
     const user = useCurrentUser();
     const trips = mockTrips;
 
+    const isEdit = mode === "edit";
 
     const today = new Date().toISOString().slice(0, 10);
     const activeTrip = useMemo(
@@ -62,33 +116,49 @@ export default function FeedNew() {
         [trips, today],
     );
 
-    const [kind, setKind] = useState<Kind>("post");
-    const [tripId, setTripId] = useState<string>(activeTrip?.id ?? "");
-    const [text, setText] = useState("");
-    const [location, setLocation] = useState("");
-    const [tags, setTags] = useState("");
-    const [photos, setPhotos] = useState<Photo[]>([]);
-    const [contact, setContact] = useState("");
-    const [impression, setImpression] = useState("");
-    const [expiresAt, setExpiresAt] = useState("");
+    // --- state form utama ---
+    const [kind, setKind] = useState<Kind>(initialPost?.kind ?? "post");
+    const [tripId, setTripId] = useState<string>(initialPost?.tripId ?? "");
+    const [text, setText] = useState(initialPost?.text ?? "");
+    const [location, setLocation] = useState(initialPost?.location ?? "");
+    const [photos, setPhotos] = useState<Photo[]>(initialPost?.photos ?? []);
+    const [attachments, setAttachments] = useState<File[]>(initialPost?.attachments ?? []);
+    const [contact, setContact] = useState(initialPost?.contact ?? "");
+    const [impression, setImpression] = useState(initialPost?.impression ?? "");
+    const [expiresAt, setExpiresAt] = useState(initialPost?.expiresAt ?? "");
 
-    // Polling
-    const [pollQuestion, setPollQuestion] = useState("");
-    const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+    // --- visibility ---
+    const [visibility, setVisibility] = useState<Visibility>(initialPost?.visibility ?? "everyone");
+    const [allowedViewers, setAllowedViewers] = useState(
+        (initialPost?.allowedViewers ?? []).join(", ")
+    );
+    const [teamId, setTeamId] = useState<string>(initialPost?.teamId ?? "");
 
-    // Expenses & Receipts
-    const [expDate, setExpDate] = useState(today);
-    const [expDesc, setExpDesc] = useState("");
-    const [expCategory, setExpCategory] = useState<ExpenseCategory>("Meals");
-    const [expCurrency, setExpCurrency] = useState<ExpenseCurrency>("IDR");
-    const [expAmount, setExpAmount] = useState("");
-    const [expReceipt, setExpReceipt] = useState(false);
-    const [expNotes, setExpNotes] = useState("");
+    // --- Polling ---
+    const [pollQuestion, setPollQuestion] = useState(initialPost?.poll?.question ?? "");
+    const [pollOptions, setPollOptions] = useState<string[]>(
+        initialPost?.poll?.options.map((o) => o.label) ?? ["", ""]
+    );
 
-    // "Tell us how you feel!" — public companion post
-    const [rating, setRating] = useState(0);
-    const [feeling, setFeeling] = useState("");
-    const [feelingPhotos, setFeelingPhotos] = useState<Photo[]>([]);
+    // --- Expenses & Receipts ---
+    const [expDate, setExpDate] = useState(initialPost?.expense?.date ?? today);
+    const [expDesc, setExpDesc] = useState(initialPost?.expense?.description ?? "");
+    const [expCategory, setExpCategory] = useState<ExpenseCategory>(
+        initialPost?.expense?.category ?? "Meals"
+    );
+    const [expCurrency, setExpCurrency] = useState<ExpenseCurrency>(
+        initialPost?.expense?.currency ?? "IDR"
+    );
+    const [expAmount, setExpAmount] = useState(
+        initialPost?.expense?.amount != null ? String(initialPost.expense.amount) : ""
+    );
+    const [expReceipt, setExpReceipt] = useState(initialPost?.expense?.receipt ?? false);
+    const [expNotes, setExpNotes] = useState(initialPost?.expense?.notes ?? "");
+
+    // --- "Tell us how you feel!" ---
+    const [rating, setRating] = useState(initialPost?.feeling?.rating ?? 0);
+    const [feeling, setFeeling] = useState(initialPost?.feeling?.text ?? "");
+    const [feelingPhotos, setFeelingPhotos] = useState<Photo[]>(initialPost?.feeling?.photos ?? []);
     const [sharedWith, setSharedWith] = useState("");
 
     const selectedTrip = trips.find((t) => t.id === tripId);
@@ -96,10 +166,10 @@ export default function FeedNew() {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!tripId) {
-            toast.error("Pick a trip tag — it's required.");
-            return;
-        }
+
+        // =========================
+        // Expense branch
+        // =========================
         if (kind === "expense") {
             const amount = Number(expAmount);
             if (!expDesc.trim() || !amount) {
@@ -107,11 +177,10 @@ export default function FeedNew() {
                 return;
             }
             if (expReceipt && photos.length === 0) {
-                toast.error("Attach at least one receipt photo, or turn “Receipt available” off.");
+                toast.error("Attach at least one receipt photo, or turn 'Receipt available' off.");
                 return;
             }
             /*
-            // transaction that applied with redux.
             dispatch(addExpense({
                 tripId,
                 expense: {
@@ -129,28 +198,40 @@ export default function FeedNew() {
             }));
             */
             const viewers = sharedWith.split(",").map((s) => s.trim()).filter(Boolean);
-            // Hidden post: the expense itself, visible to the author + selected people
 
-            /*
-            // transaction that applied with redux.
-            dispatch(addPost({
-                author: user.name,
-                text: `${expCategory} · ${expDesc.trim()} — ${expCurrency === "LOCAL" ? (localCode || "Local") : expCurrency} ${amount.toLocaleString()}${expNotes.trim() ? `\n${expNotes.trim()}` : ""}`,
-                location: "",
-                tags: ["expense", expCategory.toLowerCase()],
-                photos,
-                kind: "expense",
-                visibility: "restricted",
-                allowedViewers: viewers,
-                tripId,
-                tripTitle: selectedTrip?.title,
-            }));
-            */
+            if (isEdit && initialPost) {
+                /*
+                dispatch(updatePost({
+                    id: initialPost.id,
+                    changes: {
+                        text: `${expCategory} · ${expDesc.trim()} — ${expCurrency === "LOCAL" ? (localCode || "Local") : expCurrency} ${amount.toLocaleString()}${expNotes.trim() ? `\n${expNotes.trim()}` : ""}`,
+                        photos,
+                        allowedViewers: viewers,
+                        editedAt: new Date().toISOString(),
+                    },
+                }));
+                */
+                toast.success("Expense updated");
+            } else {
+                /*
+                dispatch(addPost({
+                    author: user.name,
+                    text: `${expCategory} · ${expDesc.trim()} — ${expCurrency === "LOCAL" ? (localCode || "Local") : expCurrency} ${amount.toLocaleString()}${expNotes.trim() ? `\n${expNotes.trim()}` : ""}`,
+                    location: "",
+                    tags: ["expense", expCategory.toLowerCase()],
+                    photos,
+                    kind: "expense",
+                    visibility: "restricted",
+                    allowedViewers: viewers,
+                    tripId: tripId || undefined,
+                    tripTitle: selectedTrip?.title,
+                }));
+                */
+                toast.success("Expense added to the Travel Expense Statement");
+            }
 
-            // Public post: how you feel
             if (rating > 0 || feeling.trim() || feelingPhotos.length > 0) {
                 /*
-                // transaction that applied with redux.
                 dispatch(addPost({
                     author: user.name,
                     text: feeling.trim(),
@@ -160,21 +241,30 @@ export default function FeedNew() {
                     kind: "feeling",
                     visibility: "public",
                     rating: rating || undefined,
-                    tripId,
+                    tripId: tripId || undefined,
                     tripTitle: selectedTrip?.title,
                 }));
                 */
             }
-            toast.success("Expense added to the Travel Expense Statement");
-            navigate(`/trips/${tripId}/expenses`);
+
+            if (tripId) navigate(`/trips/${tripId}/expenses`);
+            else navigate("/");
             return;
         }
+
+        // =========================
+        // Validasi umum
+        // =========================
         if (!text.trim() && photos.length === 0) {
             if (kind !== "poll") {
                 toast.error("Add some text or a photo first.");
                 return;
             }
         }
+
+        // =========================
+        // Polling
+        // =========================
         let poll: { question: string; options: { id: string; label: string; votes: string[] }[] } | undefined;
         if (kind === "poll") {
             const opts = pollOptions.map((o) => o.trim()).filter(Boolean);
@@ -184,28 +274,78 @@ export default function FeedNew() {
             }
             poll = {
                 question: pollQuestion.trim(),
-                options: opts.map((label, i) => ({ id: `o${i}-${Math.random().toString(36).slice(2, 7)}`, label, votes: [] })),
+                options: opts.map((label, i) => ({
+                    id: `o${i}-${Math.random().toString(36).slice(2, 7)}`,
+                    label,
+                    votes: [],
+                })),
             };
         }
+
         const trip = trips.find((t) => t.id === tripId);
-        /*
-        // transaction that applied with redux.
-            dispatch(addPost({
-                author: user.name,
-                text: text.trim(),
-                location: location.trim(),
-                tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-                photos,
-                kind,
-                poll,
-                tripId,
-                tripTitle: trip?.title,
-                contact: contact.trim() || undefined,
-                impression: impression.trim() || undefined,
-                expiresAt: expiresAt || undefined,
+
+        // =========================
+        // Create / Update post
+        // =========================
+        if (isEdit && initialPost) {
+            /*
+            dispatch(updatePost({
+                id: initialPost.id,
+                changes: {
+                    text: text.trim(),
+                    location: location.trim(),
+                    photos,
+                    attachments,
+                    kind,
+                    poll,
+                    tripId: tripId || undefined,
+                    tripTitle: trip?.title,
+                    contact: contact.trim() || undefined,
+                    impression: impression.trim() || undefined,
+                    expiresAt: expiresAt || undefined,
+                    visibility,
+                    allowedViewers: visibility === "restricted"
+                        ? allowedViewers.split(",").map((s) => s.trim()).filter(Boolean)
+                        : undefined,
+                    teamId: visibility === "my_team" ? teamId || undefined : undefined,
+                    editedAt: new Date().toISOString(),
+                },
             }));
+            */
+            toast.success("Post updated");
+            navigate("/");
+            return;
+        }
+
+        /*
+        dispatch(addPost({
+            author: user.name,
+            text: text.trim(),
+            location: location.trim(),
+            tags: [],
+            photos,
+            attachments,
+            kind,
+            poll,
+            tripId: tripId || undefined,
+            tripTitle: trip?.title,
+            contact: contact.trim() || undefined,
+            impression: impression.trim() || undefined,
+            expiresAt: expiresAt || undefined,
+            visibility,
+            allowedViewers: visibility === "restricted"
+                ? allowedViewers.split(",").map((s) => s.trim()).filter(Boolean)
+                : undefined,
+            teamId: visibility === "my_team" ? teamId || undefined : undefined,
+            status: visibility === "draft" ? "draft" : "published",
+        }));
         */
-        toast.success("Post published to the feed");
+
+        if (visibility === "draft") {
+            toast.success("Saved as draft");
+        } else {
+            toast.success("Post published to the feed");
+        }
         navigate("/");
     };
 
@@ -216,48 +356,52 @@ export default function FeedNew() {
         <>
             <div className="mx-auto max-w-xl">
                 <h1 className="mb-4 flex items-center gap-2 text-2xl font-semibold tracking-tight">
-                    <Sparkles className="h-5 w-5 text-primary" /> New Post
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    {isEdit ? "Edit Post" : "New Post"}
                 </h1>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Share something with the team</CardTitle>
+                        <CardTitle className="text-base">
+                            {isEdit ? "Update your post" : "Share something with us!"}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} className="space-y-4">
-                            <div className="space-y-1.5">
-                                <Label>What are you posting?</Label>
-                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                    {KINDS.map((k) => {
-                                        const Icon = k.icon;
-                                        const active = kind === k.id;
-                                        return (
-                                            <button
-                                                type="button"
-                                                key={k.id}
-                                                onClick={() => setKind(k.id)}
-                                                className={`flex flex-col items-center gap-1 rounded-md border-2 p-3 text-center text-xs transition ${active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card/50 text-muted-foreground hover:border-primary/50"
-                                                    }`}
-                                            >
-                                                <Icon className="h-5 w-5" />
-                                                <span className="font-medium">{k.label}</span>
-                                                <span className="text-[10px] opacity-80">{k.hint}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
 
+                            {/* 1. Dropdown kind */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="trip">
-                                    Trip tag <span className="text-destructive">*</span>
-                                </Label>
-                                <Select value={tripId} onValueChange={setTripId}>
-                                    <SelectTrigger id="trip">
-                                        <SelectValue placeholder="Select a trip…" />
+                                <Label htmlFor="kind">What are you posting?</Label>
+                                <Select value={kind} onValueChange={(v) => setKind(v as Kind)}>
+                                    <SelectTrigger id="kind">
+                                        <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        {KINDS.map((k) => {
+                                            const Icon = k.icon;
+                                            return (
+                                                <SelectItem key={k.id} value={k.id}>
+                                                    <span className="flex items-center gap-2">
+                                                        <Icon className="h-4 w-4" />
+                                                        {k.label}
+                                                    </span>
+                                                </SelectItem>
+                                            );
+                                        })}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* 2. Tag (optional) */}
+                            <div className="space-y-1.5">
+                                <Label htmlFor="trip">Tag</Label>
+                                <Select value={tripId} onValueChange={setTripId}>
+                                    <SelectTrigger id="trip">
+                                        <SelectValue placeholder="Select a tag (optional)…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__none">No tag</SelectItem>
                                         {trips.length === 0 && (
-                                            <SelectItem value="__none" disabled>No trips yet — create one first</SelectItem>
+                                            <SelectItem value="__notrips" disabled>No trips yet — create one first</SelectItem>
                                         )}
                                         {trips.filter(tripInDate).length > 0 && (
                                             <>
@@ -282,19 +426,19 @@ export default function FeedNew() {
                                     </SelectContent>
                                 </Select>
                                 <p className="text-[11px] text-muted-foreground">
-                                    Defaults to the trip in date today. You can tag any trip even if it's not active.
+                                    Optional. You can tag any trip even if it&apos;s not active.
                                 </p>
                             </div>
 
+                            {/* 3. Form utama (notes) */}
                             {kind !== "expense" && (
                                 <div className="space-y-1.5">
                                     <Label htmlFor="text" className="sr-only">
-                                        {kind === "see" ?
-                                            "What did you see?" :
-                                            kind === "meet" ?
-                                                "Who did you meet & what did they say?" :
-                                                "What's on your mind?"
-                                        }
+                                        {kind === "see"
+                                            ? "What did you see?"
+                                            : kind === "meet"
+                                                ? "Who did you meet & what did they say?"
+                                                : "What's on your mind?"}
                                     </Label>
                                     <div className="flex gap-3 rounded-xl border bg-background p-3">
                                         <Avatar className="mt-0.5 h-10 w-10 shrink-0">
@@ -331,6 +475,7 @@ export default function FeedNew() {
                                 </div>
                             )}
 
+                            {/* Expense accordion */}
                             {kind === "expense" && (
                                 <Accordion type="multiple" defaultValue={["expense", "feeling"]} className="space-y-3">
                                     <AccordionItem value="expense" className="rounded-xl border bg-background px-4">
@@ -375,8 +520,7 @@ export default function FeedNew() {
                                                             type="button"
                                                             key={c.id}
                                                             onClick={() => setExpCurrency(c.id)}
-                                                            className={`rounded-md border-2 px-3 py-2 text-xs font-medium transition ${expCurrency === c.id ? "border-primary bg-primary/10" : "border-border text-muted-foreground hover:border-primary/50"
-                                                                }`}
+                                                            className={`rounded-md border-2 px-3 py-2 text-xs font-medium transition ${expCurrency === c.id ? "border-primary bg-primary/10" : "border-border text-muted-foreground hover:border-primary/50"}`}
                                                         >
                                                             {c.label}
                                                         </button>
@@ -384,7 +528,7 @@ export default function FeedNew() {
                                                 </div>
                                                 {expCurrency === "LOCAL" && !localCode && (
                                                     <p className="text-[11px] text-muted-foreground">
-                                                        No local currency set on this trip's approval form — it will be recorded as “Local”.
+                                                        No local currency set on this trip&apos;s approval form — it will be recorded as &lsquo;Local&rsquo;.
                                                     </p>
                                                 )}
                                             </div>
@@ -533,30 +677,117 @@ export default function FeedNew() {
                                 </div>
                             )}
 
+
+
+                            {/* 5 & 6. Photos + attachments setelah form utama */}
                             {kind !== "expense" && (
                                 <>
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="attachments">Attachments (optional)</Label>
+                                        <Input
+                                            id="attachments"
+                                            type="file"
+                                            multiple
+                                            onChange={(e) => {
+                                                const files = e.target.files ? Array.from(e.target.files) : [];
+                                                setAttachments((prev) => [...prev, ...files]);
+                                            }}
+                                            className="cursor-pointer"
+                                        />
+                                        {attachments.length > 0 && (
+                                            <ul className="space-y-1">
+                                                {attachments.map((f, i) => (
+                                                    <li key={i} className="flex items-center justify-between rounded-md border px-3 py-1.5 text-xs">
+                                                        <span className="flex items-center gap-2 truncate">
+                                                            <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                                                            <span className="truncate">{f.name}</span>
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            aria-label="Remove attachment"
+                                                            onClick={() => setAttachments((prev) => prev.filter((_, j) => j !== i))}
+                                                            className="text-muted-foreground hover:text-destructive"
+                                                        >
+                                                            <X className="h-3.5 w-3.5" />
+                                                        </button>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                    <PhotoUploader photos={photos} onChange={setPhotos} label="Photos" />
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div className="space-y-1.5">
                                             <Label htmlFor="loc">Location (optional)</Label>
                                             <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Bangkok, Thailand" />
                                         </div>
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="tags">Tags (comma separated)</Label>
-                                            <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="noodles, retail, idea" />
-                                        </div>
                                     </div>
-                                    <PhotoUploader photos={photos} onChange={setPhotos} label="Photos" />
                                 </>
                             )}
+                            {/* 8. Visibility */}
+                            {kind !== "expense" && (
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="visibility">Who can see this?</Label>
+                                    <Select value={visibility} onValueChange={(v) => setVisibility(v as Visibility)}>
+                                        <SelectTrigger id="visibility">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {VISIBILITIES.map((v) => (
+                                                <SelectItem key={v.id} value={v.id}>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium">{v.label}</span>
+                                                        <span className="text-[10px] text-muted-foreground">{v.hint}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {visibility === "restricted" && (
+                                        <div className="space-y-1.5 pt-1">
+                                            <Label htmlFor="allowedViewers">Who can see this (comma separated names)</Label>
+                                            <Input
+                                                id="allowedViewers"
+                                                value={allowedViewers}
+                                                onChange={(e) => setAllowedViewers(e.target.value)}
+                                                placeholder="Rina Putri, Finance Team"
+                                            />
+                                            <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                                                <Lock className="h-3 w-3" /> Only you and these people can see, reply, and like this post.
+                                            </p>
+                                        </div>
+                                    )}
+                                    {visibility === "my_team" && (
+                                        <div className="space-y-1.5 pt-1">
+                                            <Label htmlFor="teamId">Team</Label>
+                                            <Input
+                                                id="teamId"
+                                                value={teamId}
+                                                onChange={(e) => setTeamId(e.target.value)}
+                                                placeholder="e.g. Sales - Indonesia"
+                                            />
+                                        </div>
+                                    )}
+                                    {visibility === "draft" && (
+                                        <p className="text-[11px] text-muted-foreground">
+                                            This will be saved as a draft and won&apos;t appear on the feed until published.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                             <div className="flex justify-end gap-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => navigate("/")}
-                                >
+                                <Button type="button" variant="outline" onClick={() => navigate("/")}>
                                     Cancel
                                 </Button>
-                                <Button type="submit">{kind === "expense" ? "Save expense" : "Publish"}</Button>
+                                <Button type="submit">
+                                    {kind === "expense"
+                                        ? (isEdit ? "Update expense" : "Save expense")
+                                        : (isEdit
+                                            ? "Update"
+                                            : visibility === "draft"
+                                                ? "Save as draft"
+                                                : "Publish")}
+                                </Button>
                             </div>
                         </form>
                     </CardContent>
