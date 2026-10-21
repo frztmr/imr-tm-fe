@@ -97,7 +97,7 @@ export default function Settings() {
 
         }
 
-        
+
     };
 
 
@@ -137,7 +137,7 @@ export default function Settings() {
                     // resolvedSettings={resolved}
                     />
                 </div>
-
+                {/* DONT USE THIS, FOR REAL */}
                 {/* {current?.role === "admin" && ( */}
                 {/* ini validasi di level redux */}
                 {/* <Link to={adminData.link}>
