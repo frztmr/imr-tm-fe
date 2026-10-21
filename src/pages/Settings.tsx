@@ -138,6 +138,7 @@ export default function Settings() {
                     />
                 </div>
                 {/* DONT USE THIS, FOR REAL */}
+                {/* Because this is not ideal */}
                 {/* {current?.role === "admin" && ( */}
                 {/* ini validasi di level redux */}
                 {/* <Link to={adminData.link}>
