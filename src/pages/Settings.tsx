@@ -48,12 +48,12 @@ export default function Settings() {
     // const [settingsCategories, setSettingsCategories] = useState<SettingCategory>(0);
 
 
-    const adminData = {
-        link: "/admin/settings",
-        logo: Shield,
-        title: 'Global settings (Admin)',
-        subtitle: 'Org defaults and policies per country, custom group or specific user.',
-    }
+    // const adminData = {
+    //     link: "/admin/settings",
+    //     logo: Shield,
+    //     title: 'Global settings (Admin)',
+    //     subtitle: 'Org defaults and policies per country, custom group or specific user.',
+    // }
 
     const handleLogout = async () => {
         navigate("/login");
@@ -140,7 +140,7 @@ export default function Settings() {
 
                 {/* {current?.role === "admin" && ( */}
                 {/* ini validasi di level redux */}
-                <Link to={adminData.link}>
+                {/* <Link to={adminData.link}>
                     <Card className="border-primary/40 transition hover:bg-accent">
                         <CardContent className="flex items-center gap-3 p-4">
                             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
@@ -155,7 +155,7 @@ export default function Settings() {
                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         </CardContent>
                     </Card>
-                </Link>
+                </Link> */}
                 {/* )} */}
 
                 {/* ===== Global Logout Button ===== */}
