@@ -2,59 +2,108 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Search } from "lucide-react";
+import {
+  ChevronRight, Search, Bell, Eye, Globe2, Palette, Plane, Settings as SettingsIcon, Shield, ShieldCheck, User,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input"; // adjust import
 import { LucideIcon } from "lucide-react";
 import API_CONF from "../../config/axios";
+import { settingsCategories, SettingCategory, SettingGroup } from "./settingsSchema";
 
 interface SettingsCategory {
   id: string;
+  link: string;
   label: string;
   description: string;
   icon: LucideIcon;
-  groups: SettingsGroup[];
+  groups: SettingGroup[];
+}
+
+// row shape returned by GET /ui/settings (ui.settings table)
+interface SettingsMenuRow {
+  link: string | null;
+  logo: string | null;
+  title: string | null;
+  subtitle: string | null;
 }
 
 interface SettingsCategoriesProps {
-  categories: SettingsCategory[];
+  categories?: SettingCategory[]; // schema used to look up the fields (groups) of each menu
   resolvedSettings?: Record<string, { locked?: boolean }>;
   onCategoryClick?: (categoryId: string) => void;
   showSearch?: boolean;
   showManagedCount?: boolean;
 }
 
+// logo is stored as text in DB, map it to lucide icon (case insensitive)
+const iconMap: Record<string, LucideIcon> = {
+  user: User,
+  bell: Bell,
+  eye: Eye,
+  plane: Plane,
+  palette: Palette,
+  shield: Shield,
+  shieldcheck: ShieldCheck,
+  globe2: Globe2,
+  settings: SettingsIcon,
+};
+
+const toIcon = (logo: string | null): LucideIcon =>
+  iconMap[(logo ?? "").toLowerCase().replace(/[-_\s]/g, "")] ?? SettingsIcon;
+
 export function SettingsCategories({
-  categories,
+  categories = settingsCategories,
   resolvedSettings,
   onCategoryClick,
   showSearch = false,
   showManagedCount = true
 }: SettingsCategoriesProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState("");
-  const [menuList, setMenuList] = useState<SettingsCategory[]>();
+  const [loading, setLoading] = useState(true);
+  const [menuList, setMenuList] = useState<SettingsCategory[]>([]);
 
   const filteredCategories = searchTerm
-    ? categories.filter(cat =>
+    ? menuList.filter(cat =>
       cat.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cat.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    : categories;
+    : menuList;
 
   useEffect(() => {
-    API_CONF.get('/ui/settings')
+    API_CONF.get<SettingsMenuRow[]>('/ui/settings')
       .then((res) => {
         console.log("results at /ui/settings ", res.data)
+        const rows = Array.isArray(res.data) ? res.data : [];
+        const results: SettingsCategory[] = rows
+          .filter((row) => row.link) // LEFT JOIN returns a null row when user has no allowed menu
+          .map((row) => {
+            const link = row.link!.startsWith("/") ? row.link! : `/settings/${row.link}`;
+            const id = link.split("/").filter(Boolean).pop() ?? "";
+            return {
+              id,
+              link,
+              label: row.title ?? "",
+              description: row.subtitle ?? "",
+              icon: toIcon(row.logo),
+              groups: categories.find((c) => c.id === id)?.groups ?? [],
+            };
+          });
         setMenuList(results)
       })
       .catch(
         (error) => {
-          console.log("error at : settings.tsx while get settings", error)
+          console.log("error at : SettingsCategories.tsx while get settings", error)
         })
+      .finally(() => setLoading(false))
 
   }, []);
+
+  if (loading) {
+    return <p className="py-8 text-center text-sm text-muted-foreground">Loading settings...</p>;
+  }
+
   return (
     <div className="space-y-4">
       {showSearch && (
@@ -72,7 +121,7 @@ export function SettingsCategories({
       <div className="space-y-2">
         {filteredCategories.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            No settings found matching "{searchTerm}"
+            {searchTerm ? `No settings found matching "${searchTerm}"` : "No settings available"}
           </p>
         ) : (
           filteredCategories.map((cat) => {
@@ -107,7 +156,7 @@ export function SettingsCategories({
             if (onCategoryClick) {
               return (
                 <button
-                  key={cat.id}
+                  key={cat.link}
                   onClick={() => onCategoryClick(cat.id)}
                   className="w-full text-left"
                 >
@@ -117,7 +166,7 @@ export function SettingsCategories({
             }
 
             return (
-              <Link key={cat.id} to={`/settings/${cat.id}`}>
+              <Link key={cat.link} to={cat.link}>
                 {content}
               </Link>
             );
