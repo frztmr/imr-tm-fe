@@ -119,7 +119,7 @@ export default function PeoplePage() {
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                     {people.map((p) => (
                                         <Link
-                                            to={`/u/${p.name}`}
+                                            to={`/user/${p.name}`}
                                         >
                                             <Card className="h-full transition hover:bg-accent">
                                                 <CardContent className="flex items-center gap-3 p-4">

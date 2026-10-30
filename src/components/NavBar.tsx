@@ -23,7 +23,7 @@ const nav: NavItem[] = [
     { key: "/reports", to: "/reports", label: "Articles", icon: BookOpen },
     { key: "/messages", to: "/messages", label: "Messages", icon: MessageCircle },
     { key: "/notifications", to: "/notifications", label: "Notifications", icon: Bell },
-    { key: "/profile", to: "/u/$userId", label: "Profile", icon: User },
+    { key: "/profile", to: "/user/$userId", label: "Profile", icon: User },
 ];
 
 const NavBar = (
@@ -78,7 +78,7 @@ const NavBar = (
 
     const activeFor = (n: NavItem) =>
         n.key === "/profile" ?
-            pathname.startsWith("/u/") :
+            pathname.startsWith("/user/") :
             isActive(n.key, n.exact);
 
     return (

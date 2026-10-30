@@ -149,11 +149,12 @@ const App = () => {
                 <Route path="/trips/:tripId" element={<TripDetail />} />
 
                 <Route path="/tags/new" element={<NewTag />} />
+
                 <Route path="/notifications" element={<NotificationPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/reports" element={<Reports />} />
 
-                <Route path="/u/:userId" element={<User />} />
+                <Route path="/user/:userId" element={<User />} />
 
                 <Route path="/settings" element={<Settings />} />
                 <Route

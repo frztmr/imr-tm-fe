@@ -69,7 +69,7 @@ export default function NotificationsPage() {
                     //                         <div className="min-w-0 flex-1">
                     //                             <p className="text-sm">
                     //                                 <Link
-                    //                                     to={`/u/${n.actor}`} // ini url ke profile
+                    //                                     to={`/user/${n.actor}`} // ini url ke profile
                     //                                     className="font-semibold hover:underline">
                     //                                     {n.actor}
                     //                                 </Link>{" "}

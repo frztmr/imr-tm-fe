@@ -19,7 +19,7 @@ export function renderItem({ n, variant, activeFor, current }: RenderItemProps) 
   const badge = 0;
 
   const userState = useSelector((state: userState) => state.personalData).personalData; 
-  let uname = userState?.uname ? `/u/${userState?.uname}` : "/login";
+  let uname = userState?.uname ? `/user/${userState?.uname}` : "/login";
   console.log("uname at RenderItem.tsx", uname)
 
 
@@ -65,7 +65,7 @@ export function renderItem({ n, variant, activeFor, current }: RenderItemProps) 
     return (
       <Link
         key={n.key}
-        // to="/u/$userId"
+        // to="/user/$userId"
         to={uname}
         // params={{ userId: encodeURIComponent(current!.name) }}
         aria-label={n.label}

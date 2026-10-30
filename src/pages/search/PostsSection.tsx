@@ -48,7 +48,7 @@ export default function PostsSection({
               )}
               <div className="min-w-0 flex-1">
                 <Link
-                  to={`/u/${slug(p.author)}`}
+                  to={`/user/${slug(p.author)}`}
                   className="text-sm font-medium hover:underline">
                   {p.author}
                 </Link>
