@@ -21,7 +21,7 @@ import TripDetail from "./pages/trip/Trip.Detail";
 import NotificationPage from "./pages/Notification";
 import MessagesPage from "./pages/Messages";
 import Reports from "./pages/Reports";
-import User from "./pages/UserPage";
+import ProfilePage from "./pages/UserPage";
 import Settings from "./pages/Settings";
 import CategoryItemsPage from "./pages/settings/";
 import AdminPage from "./pages/AdminPage";
@@ -58,7 +58,7 @@ const AuthBootstrap = ({ children }: { children: React.ReactNode }) => {
         }
       })
       .catch((err) => {
-        console.log("err at keep_login", err);
+        console.log("err at keep_login");
       })
       .finally(() => {
         if (!cancelled) setIsChecking(false);
@@ -154,7 +154,7 @@ const App = () => {
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/reports" element={<Reports />} />
 
-                <Route path="/user/:userId" element={<User />} />
+                <Route path="/user/:userId" element={<ProfilePage />} />
 
                 <Route path="/settings" element={<Settings />} />
                 <Route

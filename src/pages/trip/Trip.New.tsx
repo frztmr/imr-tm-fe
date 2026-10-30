@@ -14,13 +14,25 @@ import { Tag, Upload, FileCheck2, X } from "lucide-react";
 import countriesCities from "@/data/countriesCities.json";
 import { useCurrentUser } from "@/lib/currentUser";
 
+// redux
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { userState } from "@/store/types";
+
 // Typescript
 import type { Photo } from "@/types/tipes";
 
 const NewTrip = () => {
 
+    
+    const personalData = useSelector(
+        (state: userState) => state.personalData?.personalData?.uname
+    );
+    console.log ("personalData at trip", personalData);
+
     // Redux. Activate when ready
     // const dispatch = useAppDispatch(); 
+    const dispatch = useDispatch();
 
     const user = useCurrentUser();
     const navigate = useNavigate();
