@@ -28,6 +28,7 @@ import AdminPage from "./pages/AdminPage";
 import AdminSettingsPage from "./pages/settings/AdminSettingsPage";
 import PeoplePage from "./pages/PeoplePage";
 import SearchPage from "./pages/SearchPage";
+import NewTag from "./pages/Tag.New";
 
 const queryClient = new QueryClient();
 
@@ -147,6 +148,7 @@ const App = () => {
                 <Route path="/trips/new" element={<NewTrip />} />
                 <Route path="/trips/:tripId" element={<TripDetail />} />
 
+                <Route path="/tags/new" element={<NewTag />} />
                 <Route path="/notifications" element={<NotificationPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/reports" element={<Reports />} />
