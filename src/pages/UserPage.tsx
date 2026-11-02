@@ -1,5 +1,6 @@
 
 //React Requirement
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Link, useParams } from "react-router-dom";
 import { useMemo, useState } from "react";
 
@@ -18,7 +19,9 @@ import { ProfileTabs, PostsGrid, ArticlesTab, TripsTab, SavedTab } from "./users
 
 
 // Redux
-// import { useAppSelector, useAppDispatch } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { userState } from "@/store/types"; 
+
 
 // Typescript and Utils
 import { } from '../types/tipes'
@@ -34,9 +37,10 @@ const ProfilePage = () => {
     const { userId } = useParams();
     const name = decodeURIComponent(userId);
 
-    console.log("userId", userId);
-    console.log("name", name);
-
+    // ini harusnya gak gini. 
+    // tapi cari dari database username ini. 
+    // kalau gk ada gimana displaynya?
+   
     //ini tab di atas gambar
     const [tab, setTab] = useState<"posts" | "articles" | "trips" | "saved">("posts");
 
@@ -84,7 +88,8 @@ const ProfilePage = () => {
                         <div className="mt-3 flex items-center justify-center gap-6 text-sm sm:justify-start">
                             <div><span className="font-semibold">{posts.length + tripPhotoTiles.length}</span> <span className="text-muted-foreground">posts</span></div>
                             <div><span className="font-semibold">{trips.length}</span> <span className="text-muted-foreground">trips</span></div>
-                            <div><span className="font-semibold">{totalLikes}</span> <span className="text-muted-foreground">likes</span></div>
+                            <div><span className="font-semibold">{trips.length}</span> <span className="text-muted-foreground">tag/topic</span></div>
+                            {/* <div><span className="font-semibold">{totalLikes}</span> <span className="text-muted-foreground">likes</span></div> */}
                         </div>
                         <p className="mt-3 text-sm text-foreground/80">
                             {account?.role === "admin" ? "Admin" : "Field Researcher"} at IMI · capturing market truth on the ground.

@@ -55,7 +55,7 @@ export default function PeopleSection({
           {people.slice(0, 12).map((name) => (
             <Link
               key={name}
-              to={`/u/${slug(name)}`}
+              to={`/user/${slug(name)}`}
               className="flex items-center gap-3 rounded-lg border bg-card p-3 transition hover:bg-accent"
             >
               <Avatar className="h-10 w-10 ring-2 ring-primary/30">

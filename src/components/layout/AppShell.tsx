@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Plane, Plus, Globe2, Sparkles, BookOpen, Shield, LogIn, LogOut, Search, User, Users as UsersIcon } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { useAppDispatch, useAppSelector } from "@/store";
-import { setCurrentUser } from "@/store/authSlice";
+// import { useAppDispatch, useAppSelector } from "@/store";
+// import { setCurrentUser } from "@/store/authSlice";
 
 type NavItem = {
   to: "/" | "/search" | "/dashboard" | "/trips" | "/reports" | "/people" | "/trips/new" | "/profile";
@@ -51,11 +51,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               const Icon = n.icon;
               if (n.to === "/profile") {
                 if (!current) return null;
-                const active = pathname.startsWith("/u/");
+                const active = pathname.startsWith("/user/");
                 return (
                   <Link
                     key={n.to}
-                    to="/u/$userId"
+                    to="/user/$userId"
                     // params={{ userId: encodeURIComponent(current.name) }}
                     className={cn(
                       "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
@@ -99,7 +99,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {current ? (
               <>
                 <Link
-                  to="/u/$userId"
+                  to="/user/$userId"
                   // params={{ userId: encodeURIComponent(current.name) }}
                   className="ml-1 flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
@@ -139,13 +139,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {nav.map((n) => {
             if (n.to === "/profile") {
               if (current) {
-                const active = pathname.startsWith("/u/");
+                const active = pathname.startsWith("/user/");
                 const Icon = n.icon;
                 return (
                   <Link
                     key={n.to}
-                    to="/u/$userId"
-                    params={{ userId: encodeURIComponent(current.name) }}
+                    to={`/user/${current.name}`} 
                     className={cn(
                       "flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium text-muted-foreground",
                       active && "text-primary",

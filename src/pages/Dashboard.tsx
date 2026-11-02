@@ -32,7 +32,7 @@ type NavKey = "/" | "/reports" | "/messages" | "/notifications" | "/profile";
 
 type NavItem = {
   key: NavKey;
-  to: "/" | "/reports" | "/messages" | "/notifications" | "/u/$userId";
+  to: "/" | "/reports" | "/messages" | "/notifications" | "/user/$userId";
   label: string;
   icon: typeof Home;
   exact?: boolean;
@@ -44,7 +44,7 @@ const nav: NavItem[] = [
   { key: "/reports", to: "/reports", label: "Articles", icon: BookOpen },
   { key: "/messages", to: "/messages", label: "Messages", icon: MessageCircle },
   { key: "/notifications", to: "/notifications", label: "Notifications", icon: Bell },
-  { key: "/profile", to: "/u/$userId", label: "Profile", icon: User },
+  { key: "/profile", to: "/user/$userId", label: "Profile", icon: User },
 ];
 
 const SEEN_KEY = "imrc.notifications.seenAt";
@@ -129,7 +129,7 @@ const Dashboard = () => {
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
   const activeFor = (n: NavItem) =>
-    n.key === "/profile" ? pathname.startsWith("/u/") : isActive(n.key, n.exact);
+    n.key === "/profile" ? pathname.startsWith("/user/") : isActive(n.key, n.exact);
 
   const renderItem = (n: NavItem, variant: "desktop" | "mobile") => {
     const Icon = n.icon;
@@ -178,7 +178,7 @@ const Dashboard = () => {
       return (
         <Link
           key={n.key}
-          to="/u/$userId"
+          to="/user/$userId"
           params={{ userId: encodeURIComponent(current!.name) }}
           aria-label={n.label}
           className={variant === "desktop" ? desktopCls : mobileCls}

@@ -21,13 +21,14 @@ import TripDetail from "./pages/trip/Trip.Detail";
 import NotificationPage from "./pages/Notification";
 import MessagesPage from "./pages/Messages";
 import Reports from "./pages/Reports";
-import User from "./pages/UserPage";
+import ProfilePage from "./pages/UserPage";
 import Settings from "./pages/Settings";
 import CategoryItemsPage from "./pages/settings/";
 import AdminPage from "./pages/AdminPage";
 import AdminSettingsPage from "./pages/settings/AdminSettingsPage";
 import PeoplePage from "./pages/PeoplePage";
 import SearchPage from "./pages/SearchPage";
+import NewTag from "./pages/Tag.New";
 
 const queryClient = new QueryClient();
 
@@ -57,7 +58,7 @@ const AuthBootstrap = ({ children }: { children: React.ReactNode }) => {
         }
       })
       .catch((err) => {
-        console.log("err at keep_login", err);
+        console.log("err at keep_login");
       })
       .finally(() => {
         if (!cancelled) setIsChecking(false);
@@ -147,11 +148,13 @@ const App = () => {
                 <Route path="/trips/new" element={<NewTrip />} />
                 <Route path="/trips/:tripId" element={<TripDetail />} />
 
+                <Route path="/tags/new" element={<NewTag />} />
+
                 <Route path="/notifications" element={<NotificationPage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/reports" element={<Reports />} />
 
-                <Route path="/u/:userId" element={<User />} />
+                <Route path="/user/:userId" element={<ProfilePage />} />
 
                 <Route path="/settings" element={<Settings />} />
                 <Route

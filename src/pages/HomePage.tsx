@@ -170,7 +170,7 @@ function PostCard({ post }: { post: FeedPost }) {
         <div className="min-w-0 flex-1 space-y-2 pb-1">
           <div className="flex flex-wrap items-center gap-x-1.5 text-sm">
             <Link
-              to="/u/$userId"
+              to="/user/$userId"
               // params={{ userId: encodeURIComponent(post.author) }}
               onClick={(e) => e.stopPropagation()}
               className="font-semibold hover:underline"
