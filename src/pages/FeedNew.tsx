@@ -89,8 +89,8 @@ export default function FeedNew() {
             return;
         }
 
+        // ===== Upload photos (sequential) =====
         try {
-            // ===== Upload photos (sequential) =====
             const uploadedPhotos: { id: string; url: string; name: string }[] = [];
             for (const p of photos) {
                 // p diasumsikan punya .file — sesuaikan dengan tipe Photo Anda
@@ -181,7 +181,8 @@ export default function FeedNew() {
             };
 
             // ===== Kirim post =====
-            const res = await Axios.post("/post/new", body);
+            console.log("req body", body)
+            const res = await Axios.post("/post/new_post", body);
             toast.success(visibility === "draft" ? "Saved as draft" : "Post published");
 
             if (kind === "expense" && tripId) {
@@ -207,13 +208,13 @@ export default function FeedNew() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={submit} className="space-y-4">
-                        <KindSelect value={kind} onChange={setKind} />
-
-                        <TagSelect trips={trips} value={tripId} onChange={setTripId} />
-
                         {kind !== "expense" && (
                             <MainContent kind={kind} text={text} onChange={setText} userName={user.name} />
                         )}
+
+                        <KindSelect value={kind} onChange={setKind} />
+
+                        <TagSelect trips={trips} value={tripId} onChange={setTripId} />
 
                         {kind === "expense" && (
                             <>
