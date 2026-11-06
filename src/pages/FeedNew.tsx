@@ -185,14 +185,22 @@ export default function FeedNew() {
             const res = await Axios.post("/post/new_post", body);
             toast.success(visibility === "draft" ? "Saved as draft" : "Post published");
 
-            if (kind === "expense" && tripId) {
-                navigate(`/trips/${tripId}/expenses`);
-            } else {
-                navigate("/");
-            }
+            // if (kind === "expense" && tripId) {
+            //     navigate(`/trips/${tripId}/expenses`);
+            // } else {
+            //     navigate("/");
+            // }
         } catch (err) {
             console.log("error create post", err);
             toast.error("Failed to submit. Please try again.");
+        } finally {
+
+            if (kind === "expense" && tripId) {
+                navigate(`/trips/${tripId}/expenses`);
+            } else {
+                // navigate("/");
+            }
+
         }
     };
 
