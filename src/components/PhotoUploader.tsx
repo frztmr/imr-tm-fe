@@ -21,7 +21,7 @@ function readFiles(files: FileList): Promise<Photo[]> {
       (f) =>
         new Promise<Photo>((res, rej) => {
           const r = new FileReader();
-          r.onload = () => res({ id: nanoid(), url: String(r.result), caption: "" });
+          r.onload = () => res({ id: nanoid(), url: String(r.result), caption: "", file: f });
           r.onerror = rej;
           r.readAsDataURL(f);
         }),

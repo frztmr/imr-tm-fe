@@ -27,13 +27,16 @@ export default function FeedNew() {
     const navigate = useNavigate();
     const user = useCurrentUser();
     const trips = mockTrips;
-    const today = new Date().toISOString().slice(0, 10);
+    // local date (YYYY-MM-DD) — toISOString() would give UTC and can be off by a day
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
     // form state
     const [kind, setKind] = useState<Kind>("post");
     const [tripId, setTripId] = useState("");
     const [text, setText] = useState("");
     const [location, setLocation] = useState("");
+    const [eventDate, setEventDate] = useState(today);
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [attachments, setAttachments] = useState<File[]>([]);
     const [visibility, setVisibility] = useState<Visibility>("everyone");
@@ -89,6 +92,16 @@ export default function FeedNew() {
             return;
         }
 
+        const finalEventDate = kind === "expense" ? expense.date : eventDate;
+        if (!finalEventDate) {
+            toast.error("Pick an event date.");
+            return;
+        }
+        if (finalEventDate > today) {
+            toast.error("Event date can't be in the future.");
+            return;
+        }
+
         // ===== Upload photos (sequential) =====
         try {
             const uploadedPhotos: { id: string; url: string; name: string }[] = [];
@@ -131,6 +144,7 @@ export default function FeedNew() {
 
             const body = {
                 kind,
+                eventDate: finalEventDate,
                 tag: trip ? { tripId: trip.id, tripTitle: trip.title, tripCountry: trip.country } : null,
                 text: text.trim() || null,
                 location: location.trim() || null,
@@ -215,6 +229,23 @@ export default function FeedNew() {
                         <KindSelect value={kind} onChange={setKind} />
 
                         <TagSelect trips={trips} value={tripId} onChange={setTripId} />
+
+                        {kind !== "expense" && (
+                            <div className="space-y-1.5">
+                                <label className="text-sm font-medium" htmlFor="eventDate">Event date</label>
+                                <input
+                                    id="eventDate"
+                                    type="date"
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                                    value={eventDate}
+                                    max={today}
+                                    onChange={(e) => setEventDate(e.target.value)}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Defaults to today. Pick an earlier date to backlog a past event.
+                                </p>
+                            </div>
+                        )}
 
                         {kind === "expense" && (
                             <>

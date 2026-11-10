@@ -20,6 +20,7 @@ export interface Photo {
   id: string;
   url: string;
   caption: string;
+  file?: File;
 }
 
 export interface MarketIntel {
