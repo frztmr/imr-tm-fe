@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhotoUploader } from "@/components/PhotoUploader";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
+import { Sparkles, MapPin, RefreshCw } from "lucide-react";
 
 import { KindSelect } from "./feed/KindSelect";
 import { TagSelect } from "./feed/TagSelect";
@@ -56,6 +56,51 @@ export default function FeedNew() {
 
     const [feeling, setFeeling] = useState<FeelingData>({ rating: 0, text: "", photos: [] });
 
+    // ===== Geolocation (required by backend) =====
+    type Coords = { latitude: number; longitude: number; accuracy: number };
+    const [coords, setCoords] = useState<Coords | null>(null);
+    const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+    const [geoError, setGeoError] = useState("");
+
+    function captureLocation(): Promise<Coords | null> {
+        return new Promise((resolve) => {
+            if (!("geolocation" in navigator)) {
+                setGeoStatus("error");
+                setGeoError("This browser doesn't support location.");
+                resolve(null);
+                return;
+            }
+            setGeoStatus("loading");
+            setGeoError("");
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const c = {
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy,
+                    };
+                    setCoords(c);
+                    setGeoStatus("ok");
+                    resolve(c);
+                },
+                (err) => {
+                    setGeoStatus("error");
+                    setGeoError(
+                        err.code === err.PERMISSION_DENIED
+                            ? "Location permission denied. Allow location access in your browser to post."
+                            : "Couldn't get your location. Please try again."
+                    );
+                    resolve(null);
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+            );
+        });
+    }
+
+    useEffect(() => {
+        captureLocation();
+    }, []);
+
     const selectedTrip = trips.find((t) => t.id === tripId);
     const localCode = selectedTrip?.approval?.localCurrency || "";
 
@@ -102,6 +147,13 @@ export default function FeedNew() {
             return;
         }
 
+        // ===== Location (required) — retry once if not captured yet =====
+        const finalCoords = coords ?? (await captureLocation());
+        if (!finalCoords) {
+            toast.error("Location is required to post. Please allow location access.");
+            return;
+        }
+
         // ===== Upload photos (sequential) =====
         try {
             const uploadedPhotos: { id: string; url: string; name: string }[] = [];
@@ -145,6 +197,9 @@ export default function FeedNew() {
             const body = {
                 kind,
                 eventDate: finalEventDate,
+                latitude: finalCoords.latitude,
+                longitude: finalCoords.longitude,
+                locationAccuracy: finalCoords.accuracy, // meters
                 tag: trip ? { tripId: trip.id, tripTitle: trip.title, tripCountry: trip.country } : null,
                 text: text.trim() || null,
                 location: location.trim() || null,
@@ -312,6 +367,27 @@ export default function FeedNew() {
                                 onTeamId={setTeamId}
                             />
                         )}
+
+                        <div className="flex items-center justify-between gap-2 rounded-md border border-input px-3 py-2 text-xs">
+                            <span className="flex items-center gap-1.5 text-muted-foreground">
+                                <MapPin className="h-3.5 w-3.5" />
+                                {geoStatus === "loading" && "Getting your location…"}
+                                {geoStatus === "ok" && coords &&
+                                    `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)} (±${Math.round(coords.accuracy)} m)`}
+                                {geoStatus === "error" && <span className="text-destructive">{geoError}</span>}
+                                {geoStatus === "idle" && "Location not captured yet"}
+                            </span>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                disabled={geoStatus === "loading"}
+                                onClick={() => captureLocation()}
+                            >
+                                <RefreshCw className="h-3.5 w-3.5" />
+                            </Button>
+                        </div>
 
                         <div className="flex justify-end gap-2">
                             <Button type="button" variant="outline" onClick={() => navigate("/")}>
