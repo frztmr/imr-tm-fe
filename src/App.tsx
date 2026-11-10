@@ -7,8 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { userState } from "./store/types";
-import { login } from "@/store/userSlice";
-import Axios from "./config/axios";
+import { keepLogin } from "./config/auth";
 
 import NavBar from "@/components/NavBar";
 import Login from "./pages/Login";
@@ -50,19 +49,11 @@ const AuthBootstrap = ({ children }: { children: React.ReactNode }) => {
     }
 
     let cancelled = false;
-    Axios.get("/auth/keep_login")
-      .then((res) => {
-        if (cancelled) return;
-        if (res.status === 200) {
-          dispatch(login(res.data.personal));
-        }
-      })
-      .catch((err) => {
-        console.log("err at keep_login");
-      })
-      .finally(() => {
-        if (!cancelled) setIsChecking(false);
-      });
+    keepLogin({
+      dispatch,
+      isCancelled: () => cancelled,
+      onDone: () => setIsChecking(false),
+    });
 
     return () => {
       cancelled = true;
