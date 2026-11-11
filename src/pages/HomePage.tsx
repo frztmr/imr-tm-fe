@@ -1,6 +1,7 @@
 
 //React Requirement 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getSimplePost } from "@/config/post";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Dashboard from './Dashboard';
 
@@ -247,8 +248,27 @@ const HomePage = () => {
   // const posts = useAppSelector((s) => s.posts.posts);
   const [tab, setTab] = useState<"foryou" | "following">("foryou");
 
-  const trips = [];
-  const posts = [];
+  const trips: Trip[] = [];
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+
+  // ===== GET /post/simple_post =====
+  useEffect(() => {
+    let cancelled = false;
+    getSimplePost()
+      .then((data) => {
+        if (!cancelled) setPosts(data);
+      })
+      .catch((err) => {
+        console.log("err at get simple_post", err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingPosts(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const items = useMemo(() => {
     const tripItems = trips
@@ -312,6 +332,12 @@ const HomePage = () => {
           <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">Post</span>
         </Link>
         <div className="divide-y">
+          {loadingPosts && (
+            <p className="px-4 py-6 text-center text-sm text-muted-foreground">Loading posts…</p>
+          )}
+          {!loadingPosts && items.length === 0 && (
+            <p className="px-4 py-6 text-center text-sm text-muted-foreground">No posts yet.</p>
+          )}
           {items.map((it) =>
             it.kind === "trip" ? (
               <FeedCard key={it.id} trip={it.trip} />
