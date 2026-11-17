@@ -237,6 +237,8 @@ export interface FeedPost {
   impression?: string;
   expiresAt?: string;
   replies?: PostReply[];
+  /** Like count from backend (like_count). */
+  likeCount?: number;
 }
 
 export interface PostReply {

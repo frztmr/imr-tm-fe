@@ -34,6 +34,7 @@ export default function FeedNew() {
     // form state
     const [kind, setKind] = useState<Kind>("post");
     const [tripId, setTripId] = useState("");
+    const [title, setTitle] = useState("");
     const [text, setText] = useState("");
     const [location, setLocation] = useState("");
     const [eventDate, setEventDate] = useState(today);
@@ -201,6 +202,7 @@ export default function FeedNew() {
                 longitude: finalCoords.longitude,
                 locationAccuracy: finalCoords.accuracy, // meters
                 tag: trip ? { tripId: trip.id, tripTitle: trip.title, tripCountry: trip.country } : null,
+                title: kind !== "expense" ? title.trim().slice(0, 150) || null : null, // optional, max 150 chars
                 text: text.trim() || null,
                 location: location.trim() || null,
                 contact: kind === "meet" ? contact.trim() || null : null,
@@ -278,7 +280,12 @@ export default function FeedNew() {
                 <CardContent>
                     <form onSubmit={submit} className="space-y-4">
                         {kind !== "expense" && (
-                            <MainContent kind={kind} text={text} onChange={setText} userName={user.name} />
+                            <MainContent
+                                kind={kind}
+                                title={title} onTitleChange={setTitle}
+                                text={text} onChange={setText}
+                                userName={user.name}
+                            />
                         )}
 
                         <KindSelect value={kind} onChange={setKind} />

@@ -4,12 +4,14 @@ import type { Kind } from "./types";
 
 type Props = {
     kind: Kind;
+    title: string;
+    onTitleChange: (v: string) => void;
     text: string;
     onChange: (v: string) => void;
     userName: string;
 };
 
-export function MainContent({ kind, text, onChange, userName }: Props) {
+export function MainContent({ kind, title, onTitleChange, text, onChange, userName }: Props) {
     const placeholder =
         kind === "see" ? "Describe the product, shelf, or competitor signal…"
         : kind === "meet" ? "Quick recap of the conversation or meeting…"
@@ -29,6 +31,18 @@ export function MainContent({ kind, text, onChange, userName }: Props) {
                         @{userName.toLowerCase().replace(/[^a-z0-9]+/g, "")}
                     </span>
                 </div>
+                <input
+                    type="text"
+                    value={title}
+                    maxLength={150}
+                    onChange={(e) => onTitleChange(e.target.value.slice(0, 150))}
+                    placeholder="Title (optional)"
+                    aria-label="Title (optional)"
+                    className="mt-1 w-full border-0 bg-transparent p-0 text-base font-semibold outline-none placeholder:font-normal placeholder:text-muted-foreground"
+                />
+                {title.length > 0 && (
+                    <div className="text-right text-[11px] text-muted-foreground">{title.length}/150</div>
+                )}
                 <Textarea
                     rows={4}
                     value={text}

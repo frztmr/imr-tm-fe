@@ -145,7 +145,7 @@ function PostCard({ post }: { post: FeedPost }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [replying, setReplying] = useState(false);
-  const likes = 12 + (post.id.charCodeAt(post.id.length - 1) % 40) + (liked ? 1 : 0);
+  const likes = (post.likeCount ?? 0) + (liked ? 1 : 0);
   const kindLabel = post.kind === "see" ? "saw something" : post.kind === "meet" ? "met someone" : null;
   const replies = repliesOf(post, undefined);
   const bonded = replies.length > 0 || replying;
@@ -315,7 +315,7 @@ const HomePage = () => {
             className={`rounded-full px-4 py-1.5 transition ${tab === t ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
               }`}
           >
-            {t === "foryou" ? "For You" : "Following"}
+            {t === "foryou" ? "Present" : "Long Time Ago"}
           </button>
         ))}
       </div>

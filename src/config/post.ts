@@ -10,8 +10,9 @@ export type SimplePostRow = {
     created_at: string;
     visibility: string | null;
     location_literal: string | null;
-    longitude: number | null;
-    latitude: number | null;
+    longitude: string | null;    // pg numeric → comes as string, e.g. "106.822465"
+    latitude: string | null;     // pg numeric → comes as string, e.g. "-6.208441"
+    like_count: number | string | null;  // string if the column/COUNT is bigint
     reply_count: number | null;
     repost_count: number | null;
     is_edited: boolean | null;
@@ -28,11 +29,13 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     tags: [],
     photos: [],
     kind: "post",
+    likeCount: Number(row.like_count) || 0,
 });
 
 // GET /post/simple_post — fetch the feed posts from backend
 export const getSimplePost = async (): Promise<FeedPost[]> => {
     const res = await Axios.get("/post/simple_post");
-    const rows: SimplePostRow[] = res.data?.resGetSimplePost?.rows ?? [];
+    // BE response: { msg, posts: SimplePostRow[] }
+    const rows: SimplePostRow[] = Array.isArray(res.data?.posts) ? res.data.posts : [];
     return rows.map(mapSimplePost);
 }
