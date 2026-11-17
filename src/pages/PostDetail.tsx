@@ -138,7 +138,7 @@ export default function PostDetail() {
 
                             <ThreadActions
                                 liked={liked} onLike={() => setLiked((v) => !v)} likes={(post.likeCount ?? 0) + (liked ? 1 : 0)}
-                                comments={post.replyCount ?? replies.length} saved={saved} onSave={() => setSaved((v) => !v)}
+                                comments={Math.max(post.replyCount ?? 0, replies.length)} saved={saved} onSave={() => setSaved((v) => !v)}
                                 onReply={() => replyBoxRef.current?.querySelector("textarea")?.focus()}
                             />
                         </article>

@@ -31,7 +31,7 @@ import {
 //Typescript, dummy data, and util
 import { mockTrips } from "@/data/mockData";
 import { Trip, FeedPost } from "@/types/tipes";
-import { canViewPost, handleOf, initialsOf, relTime, repliesOf, subtreeCount } from "@/lib/feed";
+import { canViewPost, handleOf, initialsOf, relTime, repliesOf } from "@/lib/feed";
 import { useCurrentUser } from "@/lib/currentUser";
 
 //redux
@@ -146,7 +146,9 @@ function PostCard({ post }: { post: FeedPost }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [replying, setReplying] = useState(false);
+  const [sentReplies, setSentReplies] = useState(0); // replies sent from this card since the feed loaded
   const likes = (post.likeCount ?? 0) + (liked ? 1 : 0);
+  const replyCount = (post.replyCount ?? 0) + sentReplies;
   const kindLabel = post.kind === "see" ? "saw something" : post.kind === "meet" ? "met someone" : null;
   const replies = repliesOf(post, undefined);
   const bonded = replies.length > 0 || replying;
@@ -227,7 +229,7 @@ function PostCard({ post }: { post: FeedPost }) {
 
           <ThreadActions
             liked={liked} onLike={() => setLiked((v) => !v)} likes={likes}
-            comments={subtreeCount(post, undefined)} saved={saved} onSave={() => setSaved((v) => !v)}
+            comments={replyCount} saved={saved} onSave={() => setSaved((v) => !v)}
             onReply={() => setReplying((v) => !v)}
           />
         </div>
@@ -244,7 +246,7 @@ function PostCard({ post }: { post: FeedPost }) {
                 parentId={post.id}
                 visibility={post.visibility}
                 replyingTo={post.author}
-                onReplied={() => setReplying(false)}
+                onReplied={() => { setReplying(false); setSentReplies((n) => n + 1); }}
               />
             </div>
           )}
