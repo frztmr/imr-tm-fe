@@ -245,6 +245,8 @@ export interface FeedPost {
   replyCount?: number;
   /** Parent post id when this post is a reply (parent_id). */
   parentId?: string;
+  /** Top-level post id of the thread (root_id). */
+  rootId?: string;
 }
 
 export interface PostReply {

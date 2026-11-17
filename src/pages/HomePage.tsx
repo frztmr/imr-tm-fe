@@ -15,7 +15,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
-import { ReplyComposer, ReplyRow, ThreadActions } from "@/components/PostViews";
+import { ReplyRow, ThreadActions } from "@/components/PostViews";
+import { ReplyForm } from "@/components/ReplyForm";
 import {
   Heart, MessageCircle, Share2,
   Bookmark, MapPin, Sparkles,
@@ -238,7 +239,14 @@ function PostCard({ post }: { post: FeedPost }) {
             <ReplyRow key={r.id} post={post} reply={r} showConnector={i < replies.length - 1 || replying} />
           ))}
           {replying && (
-            <ReplyComposer postId={post.id} replyingTo={post.author} onDone={() => setReplying(false)} />
+            <div className="-mx-4">
+              <ReplyForm
+                parentId={post.id}
+                visibility={post.visibility}
+                replyingTo={post.author}
+                onReplied={() => setReplying(false)}
+              />
+            </div>
           )}
         </div>
       )}

@@ -36,6 +36,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     likeCount: Number(row.like_count) || 0,
     replyCount: Number(row.reply_count) || 0,
     parentId: row.parent_id || undefined,
+    rootId: row.root_id || undefined,
 });
 
 // GET /post/simple_post — fetch the feed posts from backend
@@ -44,6 +45,55 @@ export const getSimplePost = async (): Promise<FeedPost[]> => {
     // BE response: { msg, posts: SimplePostRow[] }
     const rows: SimplePostRow[] = Array.isArray(res.data?.posts) ? res.data.posts : [];
     return rows.map(mapSimplePost);
+}
+
+// POST /upload — upload one file, BE returns { id, url, name }
+export const uploadFile = async (file: File): Promise<{ id: string; url: string; name: string }> => {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await Axios.post("/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+}
+
+export type ReplyPayload = {
+    parentId: string;        // post being replied to
+    text: string;
+    images: File[];
+    files: File[];
+    latitude: number;
+    longitude: number;
+    locationAccuracy: number;
+    visibility?: string;
+};
+
+// Reply to a post. Uploads files first, then POST /post/new_reply_post
+export const replyPost = async (p: ReplyPayload) => {
+    const photos: { id: string; url: string; name: string }[] = [];
+    for (const f of p.images) photos.push(await uploadFile(f));
+
+    const attachments: { name: string; url: string; size: number; mimeType: string }[] = [];
+    for (const f of p.files) {
+        const up = await uploadFile(f);
+        attachments.push({ name: up.name, url: up.url, size: f.size, mimeType: f.type });
+    }
+
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    // only the fields a reply actually needs
+    return Axios.post("/post/new_reply_post", {
+        parent_id: p.parentId,
+        kind: "reply",
+        eventDate: today,
+        text: p.text.trim() || null,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        visibility: p.visibility ?? "everyone",
+        photos,
+        attachments,
+    });
 }
 
 // GET /post/detail/:post_id

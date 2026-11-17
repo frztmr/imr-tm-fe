@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CornerUpLeft } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PostBody, ThreadActions } from "@/components/PostViews";
+import { ReplyForm } from "@/components/ReplyForm";
 import { handleOf, initialsOf, relTime } from "@/lib/feed";
 import { getPostDetail } from "@/config/post";
 import type { FeedPost } from "@/types/tipes";
@@ -54,14 +55,20 @@ export default function PostDetail() {
     const [error, setError] = useState("");
     const [liked, setLiked] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [reloadKey, setReloadKey] = useState(0); // bump to refetch after replying
+    const replyBoxRef = useRef<HTMLDivElement>(null);
+
+    // reset per-post UI state when moving to another post
+    useEffect(() => {
+        setLiked(false);
+        setSaved(false);
+        setLoading(true);
+    }, [postId]);
 
     // ===== GET /post/detail/:post_id =====
     useEffect(() => {
         let cancelled = false;
-        setLoading(true);
         setError("");
-        setLiked(false);
-        setSaved(false);
 
         getPostDetail(postId)
             .then(({ post, replies }) => {
@@ -81,7 +88,7 @@ export default function PostDetail() {
         return () => {
             cancelled = true;
         };
-    }, [postId]);
+    }, [postId, reloadKey]);
 
     return (
         <div className="mx-auto max-w-xl">
@@ -132,8 +139,19 @@ export default function PostDetail() {
                             <ThreadActions
                                 liked={liked} onLike={() => setLiked((v) => !v)} likes={(post.likeCount ?? 0) + (liked ? 1 : 0)}
                                 comments={post.replyCount ?? replies.length} saved={saved} onSave={() => setSaved((v) => !v)}
+                                onReply={() => replyBoxRef.current?.querySelector("textarea")?.focus()}
                             />
                         </article>
+
+                        {/* ===== Reply form ===== */}
+                        <div ref={replyBoxRef} className="border-t">
+                            <ReplyForm
+                                parentId={post.id}
+                                visibility={post.visibility}
+                                replyingTo={post.author}
+                                onReplied={() => setReloadKey((k) => k + 1)}
+                            />
+                        </div>
 
                         <div className="border-t">
                             <div className="px-4 py-2 text-xs font-semibold uppercase text-muted-foreground">
