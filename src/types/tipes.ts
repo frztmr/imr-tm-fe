@@ -237,6 +237,8 @@ export interface FeedPost {
   impression?: string;
   expiresAt?: string;
   replies?: PostReply[];
+  /** Optional post title (max 150 chars). */
+  title?: string;
   /** Like count from backend (like_count). */
   likeCount?: number;
 }

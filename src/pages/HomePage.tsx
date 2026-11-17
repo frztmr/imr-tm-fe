@@ -200,6 +200,10 @@ function PostCard({ post }: { post: FeedPost }) {
             </div>
           )}
 
+          {post.title && (
+            <p className="text-base font-semibold leading-snug">{post.title}</p>
+          )}
+
           {post.text && (
             <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{post.text}</p>
           )}

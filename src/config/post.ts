@@ -6,6 +6,7 @@ export type SimplePostRow = {
     post_id?: string;            // not selected by BE yet — see note in mapSimplePost
     uname: string;
     public_share_id: string;
+    title: string | null;        // optional post title
     body: string | null;
     created_at: string;
     visibility: string | null;
@@ -24,6 +25,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     id: row.post_id ?? `${row.public_share_id}-${row.created_at}-${index}`,
     author: row.uname,
     createdAt: row.created_at,
+    title: row.title?.trim() || undefined,
     text: row.body ?? "",
     location: row.location_literal ?? "",
     tags: [],
