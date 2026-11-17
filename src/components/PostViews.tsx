@@ -10,7 +10,7 @@ import { FeedPost, PostReply } from "@/types/tipes"
 
 import {
   Heart, MessageCircle, Share2,
-  Bookmark, Trash2, MapPin
+  Bookmark, Trash2, MapPin, Lock, Star
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

@@ -3,7 +3,9 @@ import type { FeedPost } from "@/types/tipes";
 
 // Row shape returned by BE getPostSql.getSimplePost
 export type SimplePostRow = {
-    post_id?: string;            // not selected by BE yet — see note in mapSimplePost
+    post_id?: string;
+    parent_id?: string | null;   // only in /post/detail rows
+    root_id?: string | null;     // only in /post/detail rows
     uname: string;
     public_share_id: string;
     title: string | null;        // optional post title
@@ -32,6 +34,8 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     photos: [],
     kind: "post",
     likeCount: Number(row.like_count) || 0,
+    replyCount: Number(row.reply_count) || 0,
+    parentId: row.parent_id || undefined,
 });
 
 // GET /post/simple_post — fetch the feed posts from backend
@@ -40,4 +44,23 @@ export const getSimplePost = async (): Promise<FeedPost[]> => {
     // BE response: { msg, posts: SimplePostRow[] }
     const rows: SimplePostRow[] = Array.isArray(res.data?.posts) ? res.data.posts : [];
     return rows.map(mapSimplePost);
+}
+
+// GET /post/detail/:post_id
+// BE response: { msg, post_parent: [the post itself], post_root: [direct replies (parent_id = post_id)] }
+export const getPostDetail = async (
+    postId: string
+): Promise<{ post: FeedPost | null; replies: FeedPost[] }> => {
+    const res = await Axios.get(`/post/detail/${encodeURIComponent(postId)}`);
+    const postRows: SimplePostRow[] = Array.isArray(res.data?.post_parent) ? res.data.post_parent : [];
+    const replyRows: SimplePostRow[] = Array.isArray(res.data?.post_root) ? res.data.post_root : [];
+
+    const replies = replyRows
+        .map(mapSimplePost)
+        .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1)); // oldest reply first
+
+    return {
+        post: postRows.length ? mapSimplePost(postRows[0], 0) : null,
+        replies,
+    };
 }

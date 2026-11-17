@@ -33,7 +33,9 @@ export default function FeedNew() {
 
     // form state
     const [kind, setKind] = useState<Kind>("post");
-    const [tripId, setTripId] = useState("");
+    const [tripIds, setTripIds] = useState<string[]>([]);
+    // first selected tag — used for expense local currency & redirect
+    const tripId = tripIds[0] ?? "";
     const [title, setTitle] = useState("");
     const [text, setText] = useState("");
     const [location, setLocation] = useState("");
@@ -193,7 +195,9 @@ export default function FeedNew() {
             }
 
             // ===== Bangun body =====
-            const trip = trips.find((t) => t.id === tripId);
+            const selectedTags = tripIds
+                .map((id) => trips.find((t) => t.id === id))
+                .filter((t): t is (typeof trips)[number] => Boolean(t));
 
             const body = {
                 kind,
@@ -201,7 +205,7 @@ export default function FeedNew() {
                 latitude: finalCoords.latitude,
                 longitude: finalCoords.longitude,
                 locationAccuracy: finalCoords.accuracy, // meters
-                tag: trip ? { tripId: trip.id, tripTitle: trip.title, tripCountry: trip.country } : null,
+                tag: selectedTags.map((t) => ({ tripId: t.id, tripTitle: t.title, tripCountry: t.country })), // [] when none
                 title: kind !== "expense" ? title.trim().slice(0, 150) || null : null, // optional, max 150 chars
                 text: text.trim() || null,
                 location: location.trim() || null,
@@ -290,7 +294,7 @@ export default function FeedNew() {
 
                         <KindSelect value={kind} onChange={setKind} />
 
-                        <TagSelect trips={trips} value={tripId} onChange={setTripId} />
+                        <TagSelect trips={trips} value={tripIds} onChange={setTripIds} />
 
                         {kind !== "expense" && (
                             <div className="space-y-1.5">

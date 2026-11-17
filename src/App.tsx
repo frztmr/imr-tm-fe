@@ -13,6 +13,7 @@ import NavBar from "@/components/NavBar";
 import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import FeedNew from "./pages/FeedNew";
+import PostDetail from "./pages/PostDetail";
 import NotFound from "./pages/NotFound";
 import TripIndex from "./pages/trip/Trip.Index";
 import NewTrip from "./pages/trip/Trip.New";
@@ -134,6 +135,7 @@ const App = () => {
               >
                 <Route path="/" element={<HomePage />} />
                 <Route path="/feed/new" element={<FeedNew />} />
+                <Route path="/p/:postId" element={<PostDetail />} />
 
                 <Route path="/trips" element={<TripIndex />} />
                 <Route path="/trips/new" element={<NewTrip />} />
