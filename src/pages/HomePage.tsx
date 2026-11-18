@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
-import { ReplyRow, ThreadActions } from "@/components/PostViews";
+import { ParentPreview, PostDates, ReplyRow, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
 import {
   Heart, MessageCircle, Share2,
@@ -156,6 +156,9 @@ function PostCard({ post }: { post: FeedPost }) {
 
   return (
     <article className="px-4 py-4 transition hover:bg-muted/30">
+      {/* reply → show parent post on top, connected by a line */}
+      {post.parent && <ParentPreview parent={post.parent} />}
+
       <div
         role="link"
         tabIndex={0}
@@ -184,6 +187,11 @@ function PostCard({ post }: { post: FeedPost }) {
             <span className="text-muted-foreground">{handleOf(post.author)}</span>
             <span className="text-muted-foreground">·</span>
             <span className="text-muted-foreground">{relTime(post.createdAt)}</span>
+            {post.parent && (
+              <span className="w-full text-xs text-muted-foreground">
+                Replying to <span className="text-primary">{handleOf(post.parent.author)}</span>
+              </span>
+            )}
             <button
               // onClick={(e) => { e.stopPropagation(); dispatch(deletePost(post.id)); }}
               aria-label="Delete post"
@@ -210,6 +218,8 @@ function PostCard({ post }: { post: FeedPost }) {
           {post.text && (
             <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{post.text}</p>
           )}
+
+          <PostDates createdAt={post.createdAt} eventDate={post.eventDate} />
 
           {(post.contact || post.impression || post.expiresAt) && (
             <div className="rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">

@@ -3,11 +3,11 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CornerUpLeft } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { PostBody, ThreadActions } from "@/components/PostViews";
+import { ParentPreview, PostBody, PostDates, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
 import { handleOf, initialsOf, relTime } from "@/lib/feed";
-import { getPostDetail } from "@/config/post";
-import type { FeedPost } from "@/types/tipes";
+import { getPostDetail, toParentPost } from "@/config/post";
+import type { FeedPost, ParentPost } from "@/types/tipes";
 
 // One reply row — replies are posts too, so clicking opens their own detail page
 function ReplyItem({ reply }: { reply: FeedPost }) {
@@ -35,6 +35,7 @@ function ReplyItem({ reply }: { reply: FeedPost }) {
                     <span className="text-muted-foreground">{relTime(reply.createdAt)}</span>
                 </div>
                 <PostBody post={reply} />
+                <PostDates createdAt={reply.createdAt} eventDate={reply.eventDate} showPosted />
                 <ThreadActions
                     liked={liked} onLike={() => setLiked((v) => !v)} likes={(reply.likeCount ?? 0) + (liked ? 1 : 0)}
                     comments={reply.replyCount ?? 0} saved={saved} onSave={() => setSaved((v) => !v)}
@@ -50,6 +51,7 @@ export default function PostDetail() {
     const navigate = useNavigate();
 
     const [post, setPost] = useState<FeedPost | null>(null);
+    const [parent, setParent] = useState<ParentPost | null>(null);
     const [replies, setReplies] = useState<FeedPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -90,6 +92,22 @@ export default function PostDetail() {
         };
     }, [postId, reloadKey]);
 
+    // ===== parent post (when this post is a reply) =====
+    const parentId = post?.parentId;
+    useEffect(() => {
+        setParent(null);
+        if (!parentId) return;
+        let cancelled = false;
+        getPostDetail(parentId)
+            .then(({ post: p }) => {
+                if (!cancelled && p) setParent(toParentPost(p));
+            })
+            .catch((err) => console.log("err at get parent post", err)); // falls back to "View parent post" link
+        return () => {
+            cancelled = true;
+        };
+    }, [parentId]);
+
     return (
         <div className="mx-auto max-w-xl">
             <button
@@ -111,13 +129,20 @@ export default function PostDetail() {
                 {!loading && post && (
                     <>
                         <article className="space-y-3 px-4 py-4">
+                            {/* reply → parent post on top, connected by a line */}
                             {post.parentId && (
-                                <Link
-                                    to={`/p/${post.parentId}`}
-                                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                                >
-                                    <CornerUpLeft className="h-3.5 w-3.5" /> View parent post
-                                </Link>
+                                parent ? (
+                                    <div className="-mb-3">
+                                        <ParentPreview parent={parent} />
+                                    </div>
+                                ) : (
+                                    <Link
+                                        to={`/p/${post.parentId}`}
+                                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                                    >
+                                        <CornerUpLeft className="h-3.5 w-3.5" /> View parent post
+                                    </Link>
+                                )
                             )}
 
                             <div className="flex items-center gap-3">
@@ -131,10 +156,17 @@ export default function PostDetail() {
                                     <div className="text-muted-foreground">
                                         {handleOf(post.author)} · {relTime(post.createdAt)}
                                     </div>
+                                    {parent && (
+                                        <div className="text-xs text-muted-foreground">
+                                            Replying to <span className="text-primary">{handleOf(parent.author)}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             <PostBody post={post} />
+
+                            <PostDates createdAt={post.createdAt} eventDate={post.eventDate} showPosted />
 
                             <ThreadActions
                                 liked={liked} onLike={() => setLiked((v) => !v)} likes={(post.likeCount ?? 0) + (liked ? 1 : 0)}

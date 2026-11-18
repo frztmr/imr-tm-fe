@@ -247,6 +247,20 @@ export interface FeedPost {
   parentId?: string;
   /** Top-level post id of the thread (root_id). */
   rootId?: string;
+  /** Event date the post is about (event_date) — can be a backlog date. */
+  eventDate?: string;
+  /** Short info of the parent post when this post is a reply. */
+  parent?: ParentPost;
+}
+
+/** Minimal parent post info used to render "replying to" previews. */
+export interface ParentPost {
+  id: string;
+  author: string;
+  title?: string;
+  text: string;
+  createdAt: string;
+  eventDate?: string;
 }
 
 export interface PostReply {

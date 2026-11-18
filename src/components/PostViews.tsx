@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { FeedPost, PostReply } from "@/types/tipes"
+import { FeedPost, PostReply, ParentPost } from "@/types/tipes"
 
 // import { useAppDispatch } from "@/store";
 // import { addReply, deleteReply } from "@/store/postsSlice";
@@ -10,13 +10,103 @@ import { FeedPost, PostReply } from "@/types/tipes"
 
 import {
   Heart, MessageCircle, Share2,
-  Bookmark, Trash2, MapPin, Lock, Star
+  Bookmark, Trash2, MapPin, Lock, Star, CalendarDays, Clock
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { useCurrentUser } from "@/lib/currentUser";
 import { handleOf, initialsOf, relTime, repliesOf, subtreeCount } from "@/lib/feed";
+
+// "Nov 10, 2026" in the viewer's local time
+function formatDate(iso?: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function formatDateTime(iso?: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(undefined, {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+}
+
+/** Event date + (optionally) posted (created_at) date line. Posted date is for the post detail page only. */
+export function PostDates({
+  createdAt, eventDate, showPosted = false,
+}: { createdAt: string; eventDate?: string; showPosted?: boolean }) {
+  if (!eventDate && !(showPosted && createdAt)) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+      {eventDate && (
+        <span className="inline-flex items-center gap-1" title="Event date">
+          <CalendarDays className="h-3 w-3" /> Event: {formatDate(eventDate)}
+        </span>
+      )}
+      {showPosted && createdAt && (
+        <span className="inline-flex items-center gap-1" title="Posted at">
+          <Clock className="h-3 w-3" /> Posted: {formatDateTime(createdAt)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Parent post shown above a reply, with a vertical line running down
+ * to the reply's avatar so the two read as one thread.
+ * Place it directly above the reply row; the reply avatar column must be w-10.
+ */
+export function ParentPreview({ parent }: { parent: ParentPost }) {
+  const navigate = useNavigate();
+  const open = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    navigate(`/p/${parent.id}`);
+  };
+
+  return (
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={open}
+      onKeyDown={(e) => { if (e.key === "Enter") open(e); }}
+      className="group/parent flex cursor-pointer gap-3"
+    >
+      <div className="flex w-10 shrink-0 flex-col items-center">
+        <Avatar className="mt-0.5 h-10 w-10">
+          <AvatarFallback className="bg-muted text-xs font-semibold">{initialsOf(parent.author)}</AvatarFallback>
+        </Avatar>
+        {/* thread line: parent avatar → reply avatar */}
+        <div className="mt-1 w-0.5 flex-1 rounded-full bg-border" />
+      </div>
+      <div className="min-w-0 flex-1 space-y-1 pb-4">
+        <div className="flex flex-wrap items-center gap-x-1.5 text-sm">
+          <span className="font-semibold group-hover/parent:underline">{parent.author}</span>
+          <span className="text-muted-foreground">{handleOf(parent.author)}</span>
+          {parent.createdAt && (
+            <>
+              <span className="text-muted-foreground">·</span>
+              <span className="text-muted-foreground">{relTime(parent.createdAt)}</span>
+            </>
+          )}
+        </div>
+        {parent.title && <p className="text-sm font-semibold leading-snug">{parent.title}</p>}
+        {parent.text && (
+          <p className="line-clamp-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{parent.text}</p>
+        )}
+        {parent.eventDate && (
+          <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <CalendarDays className="h-3 w-3" /> Event: {formatDate(parent.eventDate)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function ThreadActions({
   liked, onLike, likes, comments, saved, onSave, onReply,

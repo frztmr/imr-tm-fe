@@ -1,11 +1,18 @@
 import Axios from "./axios";
-import type { FeedPost } from "@/types/tipes";
+import type { FeedPost, ParentPost } from "@/types/tipes";
 
 // Row shape returned by BE getPostSql.getSimplePost
 export type SimplePostRow = {
     post_id?: string;
-    parent_id?: string | null;   // only in /post/detail rows
+    parent_id?: string | null;
     root_id?: string | null;     // only in /post/detail rows
+    event_date?: string | null;
+    // parent post info — only in /post/simple_post rows that are replies
+    parent_title?: string | null;
+    parent_body?: string | null;
+    parent_created_at?: string | null;
+    parent_event_date?: string | null;
+    parent_uname?: string | null;
     uname: string;
     public_share_id: string;
     title: string | null;        // optional post title
@@ -27,6 +34,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     id: row.post_id ?? `${row.public_share_id}-${row.created_at}-${index}`,
     author: row.uname,
     createdAt: row.created_at,
+    eventDate: row.event_date || undefined,
     title: row.title?.trim() || undefined,
     text: row.body ?? "",
     location: row.location_literal ?? "",
@@ -37,6 +45,27 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     replyCount: Number(row.reply_count) || 0,
     parentId: row.parent_id || undefined,
     rootId: row.root_id || undefined,
+    // parent post preview (only when the parent is still available)
+    parent: row.parent_id && row.parent_uname
+        ? {
+            id: row.parent_id,
+            author: row.parent_uname,
+            title: row.parent_title?.trim() || undefined,
+            text: row.parent_body ?? "",
+            createdAt: row.parent_created_at ?? "",
+            eventDate: row.parent_event_date || undefined,
+        }
+        : undefined,
+});
+
+// Turn a full post into the small parent-preview shape
+export const toParentPost = (p: FeedPost): ParentPost => ({
+    id: p.id,
+    author: p.author,
+    title: p.title,
+    text: p.text,
+    createdAt: p.createdAt,
+    eventDate: p.eventDate,
 });
 
 // GET /post/simple_post — fetch the feed posts from backend
