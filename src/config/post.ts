@@ -23,6 +23,7 @@ export type SimplePostRow = {
     longitude: string | null;    // pg numeric → comes as string, e.g. "106.822465"
     latitude: string | null;     // pg numeric → comes as string, e.g. "-6.208441"
     like_count: number | string | null;  // string if the column/COUNT is bigint
+    liked_by_me?: boolean | null;        // whether the current user already liked this post
     reply_count: number | null;
     repost_count: number | null;
     is_edited: boolean | null;
@@ -42,6 +43,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     photos: [],
     kind: "post",
     likeCount: Number(row.like_count) || 0,
+    likedByMe: row.liked_by_me === true,
     replyCount: Number(row.reply_count) || 0,
     parentId: row.parent_id || undefined,
     rootId: row.root_id || undefined,
@@ -123,6 +125,19 @@ export const replyPost = async (p: ReplyPayload) => {
         photos,
         attachments,
     });
+}
+
+// POST /post/like_unlike/:post_id — toggles like for the current user.
+// BE may return { liked, like_count }; if it doesn't, the caller keeps its optimistic state.
+export const likeUnlikePost = async (
+    postId: string
+): Promise<{ liked?: boolean; likeCount?: number }> => {
+    const res = await Axios.post(`/post/like_unlike/${encodeURIComponent(postId)}`);
+    const d = res.data ?? {};
+    return {
+        liked: typeof d.liked === "boolean" ? d.liked : undefined,
+        likeCount: d.like_count != null && !Number.isNaN(Number(d.like_count)) ? Number(d.like_count) : undefined,
+    };
 }
 
 // GET /post/detail/:post_id

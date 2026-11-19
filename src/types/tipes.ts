@@ -241,6 +241,8 @@ export interface FeedPost {
   title?: string;
   /** Like count from backend (like_count). */
   likeCount?: number;
+  /** Whether the current user has liked this post (liked_by_me). */
+  likedByMe?: boolean;
   /** Reply count from backend (reply_count). */
   replyCount?: number;
   /** Parent post id when this post is a reply (parent_id). */

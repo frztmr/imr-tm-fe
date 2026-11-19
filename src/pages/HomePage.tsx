@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { ParentPreview, PostDates, ReplyRow, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
+import { useLike } from "@/lib/useLike";
 import {
   Heart, MessageCircle, Share2,
   Bookmark, MapPin, Sparkles,
@@ -143,11 +144,10 @@ function FeedCard({ trip }: { trip: Trip }) {
 function PostCard({ post }: { post: FeedPost }) {
 
   const navigate = useNavigate();
-  const [liked, setLiked] = useState(false);
+  const { liked, likes, toggle: toggleLike } = useLike(post); // POST /post/like_unlike/:post_id
   const [saved, setSaved] = useState(false);
   const [replying, setReplying] = useState(false);
   const [sentReplies, setSentReplies] = useState(0); // replies sent from this card since the feed loaded
-  const likes = (post.likeCount ?? 0) + (liked ? 1 : 0);
   const replyCount = (post.replyCount ?? 0) + sentReplies;
   const kindLabel = post.kind === "see" ? "saw something" : post.kind === "meet" ? "met someone" : null;
   const replies = repliesOf(post, undefined);
@@ -238,7 +238,7 @@ function PostCard({ post }: { post: FeedPost }) {
           )}
 
           <ThreadActions
-            liked={liked} onLike={() => setLiked((v) => !v)} likes={likes}
+            liked={liked} onLike={toggleLike} likes={likes}
             comments={replyCount} saved={saved} onSave={() => setSaved((v) => !v)}
             onReply={() => setReplying((v) => !v)}
           />

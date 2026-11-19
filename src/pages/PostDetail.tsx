@@ -5,6 +5,7 @@ import { ArrowLeft, CornerUpLeft } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ParentPreview, PostBody, PostDates, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
+import { useLike } from "@/lib/useLike";
 import { handleOf, initialsOf, relTime } from "@/lib/feed";
 import { getPostDetail, toParentPost } from "@/config/post";
 import type { FeedPost, ParentPost } from "@/types/tipes";
@@ -12,7 +13,7 @@ import type { FeedPost, ParentPost } from "@/types/tipes";
 // One reply row — replies are posts too, so clicking opens their own detail page
 function ReplyItem({ reply }: { reply: FeedPost }) {
     const navigate = useNavigate();
-    const [liked, setLiked] = useState(false);
+    const { liked, likes, toggle: toggleLike } = useLike(reply);
     const [saved, setSaved] = useState(false);
     const open = () => navigate(`/p/${reply.id}`);
 
@@ -37,7 +38,7 @@ function ReplyItem({ reply }: { reply: FeedPost }) {
                 <PostBody post={reply} />
                 <PostDates createdAt={reply.createdAt} eventDate={reply.eventDate} showPosted />
                 <ThreadActions
-                    liked={liked} onLike={() => setLiked((v) => !v)} likes={(reply.likeCount ?? 0) + (liked ? 1 : 0)}
+                    liked={liked} onLike={toggleLike} likes={likes}
                     comments={reply.replyCount ?? 0} saved={saved} onSave={() => setSaved((v) => !v)}
                     onReply={open}
                 />
@@ -55,14 +56,14 @@ export default function PostDetail() {
     const [replies, setReplies] = useState<FeedPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [liked, setLiked] = useState(false);
+    // hooks can't be conditional → feed a placeholder until the post is loaded
+    const like = useLike(post ?? { id: postId, likeCount: 0, likedByMe: false });
     const [saved, setSaved] = useState(false);
     const [reloadKey, setReloadKey] = useState(0); // bump to refetch after replying
     const replyBoxRef = useRef<HTMLDivElement>(null);
 
     // reset per-post UI state when moving to another post
     useEffect(() => {
-        setLiked(false);
         setSaved(false);
         setLoading(true);
     }, [postId]);
@@ -169,7 +170,7 @@ export default function PostDetail() {
                             <PostDates createdAt={post.createdAt} eventDate={post.eventDate} showPosted />
 
                             <ThreadActions
-                                liked={liked} onLike={() => setLiked((v) => !v)} likes={(post.likeCount ?? 0) + (liked ? 1 : 0)}
+                                liked={like.liked} onLike={like.toggle} likes={like.likes}
                                 comments={Math.max(post.replyCount ?? 0, replies.length)} saved={saved} onSave={() => setSaved((v) => !v)}
                                 onReply={() => replyBoxRef.current?.querySelector("textarea")?.focus()}
                             />
