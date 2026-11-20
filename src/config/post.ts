@@ -23,7 +23,8 @@ export type SimplePostRow = {
     longitude: string | null;    // pg numeric → comes as string, e.g. "106.822465"
     latitude: string | null;     // pg numeric → comes as string, e.g. "-6.208441"
     like_count: number | string | null;  // string if the column/COUNT is bigint
-    liked_by_me?: boolean | null;        // whether the current user already liked this post
+    is_liked?: boolean | null;           // whether the current user already liked this post
+    liked_by_me?: boolean | null;        // older name, kept as fallback
     reply_count: number | null;
     repost_count: number | null;
     is_edited: boolean | null;
@@ -43,7 +44,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     photos: [],
     kind: "post",
     likeCount: Number(row.like_count) || 0,
-    likedByMe: row.liked_by_me === true,
+    likedByMe: (row.is_liked ?? row.liked_by_me) === true,
     replyCount: Number(row.reply_count) || 0,
     parentId: row.parent_id || undefined,
     rootId: row.root_id || undefined,
