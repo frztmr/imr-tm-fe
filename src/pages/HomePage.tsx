@@ -19,6 +19,7 @@ import { ParentPreview, PostDates, ReplyRow, ThreadActions } from "@/components/
 import { ReplyForm } from "@/components/ReplyForm";
 import { useLike } from "@/lib/useLike";
 import { useBookmark } from "@/lib/useBookmark";
+import { LinkCard, LinkifiedText } from "@/components/LinkPreview";
 import {
   Heart, MessageCircle, Share2,
   Bookmark, MapPin, Sparkles,
@@ -216,7 +217,10 @@ function PostCard({ post }: { post: FeedPost }) {
           )}
 
           {post.text && (
-            <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{post.text}</p>
+            <>
+              <LinkifiedText text={post.text} className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90" />
+              <LinkCard text={post.text} />
+            </>
           )}
 
           <PostDates createdAt={post.createdAt} eventDate={post.eventDate} />

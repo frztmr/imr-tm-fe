@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
+import { LinkCard, LinkifiedText } from "@/components/LinkPreview";
 import { useCurrentUser } from "@/lib/currentUser";
 import { handleOf, initialsOf, relTime, repliesOf, subtreeCount } from "@/lib/feed";
 
@@ -238,7 +239,10 @@ export function PostBody({ post }: { post: FeedPost }) {
       )}
 
       {post.text && (
-        <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{post.text}</p>
+        <>
+          <LinkifiedText text={post.text} className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90" />
+          <LinkCard text={post.text} />
+        </>
       )}
 
       {post.poll && post.poll.options.length > 0 && <PollBlock post={post} />}
