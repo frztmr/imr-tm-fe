@@ -37,7 +37,10 @@ function ReplyItem({ reply }: { reply: FeedPost }) {
                     <span className="text-muted-foreground">{relTime(reply.createdAt)}</span>
                 </div>
                 <PostBody post={reply} />
-                <PostDates createdAt={reply.createdAt} eventDate={reply.eventDate} showPosted />
+                <PostDates
+                    createdAt={reply.createdAt} eventDate={reply.eventDate} showPosted
+                    location={reply.location} latitude={reply.latitude} longitude={reply.longitude}
+                />
                 <ThreadActions
                     liked={liked} onLike={toggleLike} likes={likes}
                     comments={reply.replyCount ?? 0} saved={saved} onSave={toggleSave}
@@ -167,7 +170,10 @@ export default function PostDetail() {
 
                             <PostBody post={post} />
 
-                            <PostDates createdAt={post.createdAt} eventDate={post.eventDate} showPosted />
+                            <PostDates
+                                createdAt={post.createdAt} eventDate={post.eventDate} showPosted
+                                location={post.location} latitude={post.latitude} longitude={post.longitude}
+                            />
 
                             <ThreadActions
                                 liked={like.liked} onLike={like.toggle} likes={like.likes}

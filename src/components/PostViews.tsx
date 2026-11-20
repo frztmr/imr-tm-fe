@@ -35,11 +35,20 @@ function formatDateTime(iso?: string) {
   });
 }
 
-/** Event date + (optionally) posted (created_at) date line. Posted date is for the post detail page only. */
+/**
+ * Event date + (optionally) posted (created_at) date + location line.
+ * Posted date is for the post detail page only.
+ * Location: location_literal if present, otherwise lat/long linking to Google Maps.
+ */
 export function PostDates({
-  createdAt, eventDate, showPosted = false,
-}: { createdAt: string; eventDate?: string; showPosted?: boolean }) {
-  if (!eventDate && !(showPosted && createdAt)) return null;
+  createdAt, eventDate, showPosted = false, location, latitude, longitude,
+}: {
+  createdAt: string; eventDate?: string; showPosted?: boolean;
+  location?: string; latitude?: number; longitude?: number;
+}) {
+  const place = location?.trim();
+  const hasCoords = latitude !== undefined && longitude !== undefined;
+  if (!eventDate && !(showPosted && createdAt) && !place && !hasCoords) return null;
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
       {eventDate && (
@@ -51,6 +60,22 @@ export function PostDates({
         <span className="inline-flex items-center gap-1" title="Posted at">
           <Clock className="h-3 w-3" /> Posted: {formatDateTime(createdAt)}
         </span>
+      )}
+      {place ? (
+        <span className="inline-flex items-center gap-1" title="Location">
+          <MapPin className="h-3 w-3" /> {place}
+        </span>
+      ) : hasCoords && (
+        <a
+          href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()} // don't open the post when clicking the map link
+          className="inline-flex items-center gap-1 text-primary hover:underline"
+          title="Open in Google Maps"
+        >
+          <MapPin className="h-3 w-3" /> {latitude!.toFixed(5)}, {longitude!.toFixed(5)}
+        </a>
       )}
     </div>
   );
@@ -187,7 +212,7 @@ export function PostBody({ post }: { post: FeedPost }) {
               : null;
   return (
     <>
-      {(kindLabel || post.tripTitle || post.location) && (
+      {(kindLabel || post.tripTitle) && (
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
           {kindLabel && <Badge variant="secondary" className="rounded-full font-normal">{kindLabel}</Badge>}
           {post.visibility === "restricted" && (
@@ -196,7 +221,6 @@ export function PostBody({ post }: { post: FeedPost }) {
             </Badge>
           )}
           {post.tripTitle && <span className="text-primary">#{post.tripTitle.replace(/\s+/g, "")}</span>}
-          {post.location && (<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {post.location}</span>)}
         </div>
       )}
 

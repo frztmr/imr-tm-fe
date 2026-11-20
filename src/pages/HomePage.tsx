@@ -202,13 +202,12 @@ function PostCard({ post }: { post: FeedPost }) {
             </button>
           </div>
 
-          {(kindLabel || post.tripTitle || post.location) && (
+          {(kindLabel || post.tripTitle) && (
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
               {kindLabel && (
                 <Badge variant="secondary" className="rounded-full font-normal">{kindLabel}</Badge>
               )}
               {post.tripTitle && <span className="text-primary">#{post.tripTitle.replace(/\s+/g, "")}</span>}
-              {post.location && (<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {post.location}</span>)}
             </div>
           )}
 

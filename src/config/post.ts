@@ -31,6 +31,13 @@ export type SimplePostRow = {
     is_edited: boolean | null;
 };
 
+// pg numeric comes as string → number; undefined when missing / invalid / out of range
+const toCoord = (v: string | number | null | undefined, limit: number): number | undefined => {
+    if (v === null || v === undefined || v === "") return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) && Math.abs(n) <= limit ? n : undefined;
+};
+
 // Convert a BE row into the FeedPost shape the feed UI already uses
 const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     // BE doesn't return the post id yet; fall back to a key that is unique per page load
@@ -40,7 +47,9 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     eventDate: row.event_date || undefined,
     title: row.title?.trim() || undefined,
     text: row.body ?? "",
-    location: row.location_literal ?? "",
+    location: row.location_literal?.trim() ?? "",
+    latitude: toCoord(row.latitude, 90),
+    longitude: toCoord(row.longitude, 180),
     tags: [],
     photos: [],
     kind: "post",

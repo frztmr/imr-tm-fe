@@ -243,6 +243,9 @@ export interface FeedPost {
   likeCount?: number;
   /** Whether the current user has liked this post (liked_by_me). */
   likedByMe?: boolean;
+  /** Coordinates where the post was made (BE sends them as strings). */
+  latitude?: number;
+  longitude?: number;
   /** Whether the current user has bookmarked this post (is_bookmarked). */
   bookmarkedByMe?: boolean;
   /** Reply count from backend (reply_count). */
