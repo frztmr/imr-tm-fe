@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ParentPreview, PostBody, PostDates, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
 import { useLike } from "@/lib/useLike";
+import { useBookmark } from "@/lib/useBookmark";
 import { handleOf, initialsOf, relTime } from "@/lib/feed";
 import { getPostDetail, toParentPost } from "@/config/post";
 import type { FeedPost, ParentPost } from "@/types/tipes";
@@ -14,7 +15,7 @@ import type { FeedPost, ParentPost } from "@/types/tipes";
 function ReplyItem({ reply }: { reply: FeedPost }) {
     const navigate = useNavigate();
     const { liked, likes, toggle: toggleLike } = useLike(reply);
-    const [saved, setSaved] = useState(false);
+    const { saved, toggle: toggleSave } = useBookmark(reply);
     const open = () => navigate(`/p/${reply.id}`);
 
     return (
@@ -39,7 +40,7 @@ function ReplyItem({ reply }: { reply: FeedPost }) {
                 <PostDates createdAt={reply.createdAt} eventDate={reply.eventDate} showPosted />
                 <ThreadActions
                     liked={liked} onLike={toggleLike} likes={likes}
-                    comments={reply.replyCount ?? 0} saved={saved} onSave={() => setSaved((v) => !v)}
+                    comments={reply.replyCount ?? 0} saved={saved} onSave={toggleSave}
                     onReply={open}
                 />
             </div>
@@ -58,13 +59,12 @@ export default function PostDetail() {
     const [error, setError] = useState("");
     // hooks can't be conditional → feed a placeholder until the post is loaded
     const like = useLike(post ?? { id: postId, likeCount: 0, likedByMe: false });
-    const [saved, setSaved] = useState(false);
+    const bookmark = useBookmark(post ?? { id: postId, bookmarkedByMe: false });
     const [reloadKey, setReloadKey] = useState(0); // bump to refetch after replying
     const replyBoxRef = useRef<HTMLDivElement>(null);
 
     // reset per-post UI state when moving to another post
     useEffect(() => {
-        setSaved(false);
         setLoading(true);
     }, [postId]);
 
@@ -171,7 +171,7 @@ export default function PostDetail() {
 
                             <ThreadActions
                                 liked={like.liked} onLike={like.toggle} likes={like.likes}
-                                comments={Math.max(post.replyCount ?? 0, replies.length)} saved={saved} onSave={() => setSaved((v) => !v)}
+                                comments={Math.max(post.replyCount ?? 0, replies.length)} saved={bookmark.saved} onSave={bookmark.toggle}
                                 onReply={() => replyBoxRef.current?.querySelector("textarea")?.focus()}
                             />
                         </article>

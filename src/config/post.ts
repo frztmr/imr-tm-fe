@@ -25,6 +25,7 @@ export type SimplePostRow = {
     like_count: number | string | null;  // string if the column/COUNT is bigint
     is_liked?: boolean | null;           // whether the current user already liked this post
     liked_by_me?: boolean | null;        // older name, kept as fallback
+    is_bookmarked?: boolean | null;      // whether the current user bookmarked this post
     reply_count: number | null;
     repost_count: number | null;
     is_edited: boolean | null;
@@ -45,6 +46,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     kind: "post",
     likeCount: Number(row.like_count) || 0,
     likedByMe: (row.is_liked ?? row.liked_by_me) === true,
+    bookmarkedByMe: row.is_bookmarked === true,
     replyCount: Number(row.reply_count) || 0,
     parentId: row.parent_id || undefined,
     rootId: row.root_id || undefined,
@@ -138,6 +140,21 @@ export const likeUnlikePost = async (
     return {
         liked: typeof d.liked === "boolean" ? d.liked : undefined,
         likeCount: d.like_count != null && !Number.isNaN(Number(d.like_count)) ? Number(d.like_count) : undefined,
+    };
+}
+
+// POST /post/bookmark_unbookmark/:post_id — toggles bookmark for the current user.
+// BE may return { bookmarked }; if it doesn't, the caller keeps its optimistic state.
+export const bookmarkUnbookmarkPost = async (
+    postId: string
+): Promise<{ bookmarked?: boolean }> => {
+    const res = await Axios.post(`/post/bookmark/${encodeURIComponent(postId)}`);
+
+    const d = res.data ?? {};
+    return {
+        bookmarked: typeof d.bookmarked === "boolean" ? d.bookmarked
+            : typeof d.is_bookmarked === "boolean" ? d.is_bookmarked
+                : undefined,
     };
 }
 

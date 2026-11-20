@@ -18,6 +18,7 @@ import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { ParentPreview, PostDates, ReplyRow, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
 import { useLike } from "@/lib/useLike";
+import { useBookmark } from "@/lib/useBookmark";
 import {
   Heart, MessageCircle, Share2,
   Bookmark, MapPin, Sparkles,
@@ -145,7 +146,7 @@ function PostCard({ post }: { post: FeedPost }) {
 
   const navigate = useNavigate();
   const { liked, likes, toggle: toggleLike } = useLike(post); // POST /post/like_unlike/:post_id
-  const [saved, setSaved] = useState(false);
+  const { saved, toggle: toggleSave } = useBookmark(post); // POST /post/bookmark_unbookmark/:post_id
   const [replying, setReplying] = useState(false);
   const [sentReplies, setSentReplies] = useState(0); // replies sent from this card since the feed loaded
   const replyCount = (post.replyCount ?? 0) + sentReplies;
@@ -239,7 +240,7 @@ function PostCard({ post }: { post: FeedPost }) {
 
           <ThreadActions
             liked={liked} onLike={toggleLike} likes={likes}
-            comments={replyCount} saved={saved} onSave={() => setSaved((v) => !v)}
+            comments={replyCount} saved={saved} onSave={toggleSave}
             onReply={() => setReplying((v) => !v)}
           />
         </div>

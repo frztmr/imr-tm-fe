@@ -243,6 +243,8 @@ export interface FeedPost {
   likeCount?: number;
   /** Whether the current user has liked this post (liked_by_me). */
   likedByMe?: boolean;
+  /** Whether the current user has bookmarked this post (is_bookmarked). */
+  bookmarkedByMe?: boolean;
   /** Reply count from backend (reply_count). */
   replyCount?: number;
   /** Parent post id when this post is a reply (parent_id). */
