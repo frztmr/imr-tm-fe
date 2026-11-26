@@ -22,6 +22,10 @@ import type { Photo } from "@/store/types";
 import { useCurrentUser } from "@/lib/currentUser";
 import { mockTrips } from "@/data/mockData";
 import Axios from "../config/axios";
+import {
+    uploadFiles, waitForUploads, uploadErrorMessage,
+    isAllowedPhoto, isAllowedAttachment, UPLOAD_MAX_FILE_SIZE,
+} from "@/config/post";
 
 export default function FeedNew() {
     const navigate = useNavigate();
@@ -42,6 +46,8 @@ export default function FeedNew() {
     const [eventDate, setEventDate] = useState(today);
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [attachments, setAttachments] = useState<File[]>([]);
+    const [submitting, setSubmitting] = useState(false);
+    const [uploadPct, setUploadPct] = useState<number | null>(null); // null = not uploading bytes
     const [visibility, setVisibility] = useState<Visibility>("everyone");
     const [allowedViewers, setAllowedViewers] = useState("");
     const [teamId, setTeamId] = useState("");
@@ -107,15 +113,6 @@ export default function FeedNew() {
     const selectedTrip = trips.find((t) => t.id === tripId);
     const localCode = selectedTrip?.approval?.localCurrency || "";
 
-    async function uploadFile(file: File): Promise<{ id: string; url: string; name: string }> {
-        const form = new FormData();
-        form.append("file", file);
-        const res = await Axios.post("/upload", form, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
-        return res.data; // { id, url, name }
-    }
-
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -157,41 +154,47 @@ export default function FeedNew() {
             return;
         }
 
-        // ===== Upload photos (sequential) =====
+        // ===== Validate files against BE rules (type + size) =====
+        const photoFiles = photos.map((p) => p.file).filter((f): f is File => Boolean(f));
+        const feelingFiles = kind === "expense"
+            ? feeling.photos.map((p) => p.file).filter((f): f is File => Boolean(f))
+            : [];
+        const badPhoto = [...photoFiles, ...feelingFiles].find((f) => !isAllowedPhoto(f));
+        if (badPhoto) {
+            toast.error(`${badPhoto.name}: only JPG, PNG, WEBP or GIF pictures are allowed.`);
+            return;
+        }
+        const badFile = attachments.find((f) => !isAllowedAttachment(f));
+        if (badFile) {
+            toast.error(`${badFile.name}: only PDF, Word, Excel, PowerPoint, TXT or CSV files are allowed.`);
+            return;
+        }
+        const tooBig = [...photoFiles, ...feelingFiles, ...attachments].find((f) => f.size > UPLOAD_MAX_FILE_SIZE);
+        if (tooBig) {
+            toast.error(`${tooBig.name} is too large. Max ${UPLOAD_MAX_FILE_SIZE / 1024 / 1024} MB per file.`);
+            return;
+        }
+
+        setSubmitting(true);
         try {
-            const uploadedPhotos: { id: string; url: string; name: string }[] = [];
-            for (const p of photos) {
-                // p diasumsikan punya .file — sesuaikan dengan tipe Photo Anda
-                if (p.file) {
-                    const uploaded = await uploadFile(p.file);
-                    uploadedPhotos.push(uploaded);
-                } else {
-                    // sudah ter-upload sebelumnya (misal saat edit)
-                    uploadedPhotos.push({ id: p.id, url: p.url, name: "" });
-                }
-            }
+            // ===== Upload files: POST /post/upload_file → poll /post/upload_status =====
+            // one list, same order back → split into photos / feeling photos / attachments
+            const allFiles = [...photoFiles, ...feelingFiles, ...attachments];
+            let photoIds: string[] = [];
+            let feelingIds: string[] = [];
+            let attachmentIds: string[] = [];
 
-            // ===== Upload attachments (sequential) =====
-            const uploadedAttachments: { name: string; url: string; size: number; mimeType: string }[] = [];
-            for (const f of attachments) {
-                const uploaded = await uploadFile(f);
-                uploadedAttachments.push({
-                    name: uploaded.name,
-                    url: uploaded.url,
-                    size: f.size,
-                    mimeType: f.type,
-                });
-            }
+            if (allFiles.length > 0) {
+                setUploadPct(0);
+                const uploaded = await uploadFiles(allFiles, setUploadPct);
+                if (uploaded.length !== allFiles.length) throw new Error("Some files were not uploaded.");
+                setUploadPct(null); // now waiting for the BE to process them
+                await waitForUploads(uploaded.map((f) => f.file_id));
 
-            // ===== Upload feeling photos (sequential) =====
-            const uploadedFeelingPhotos: { id: string; url: string; name: string }[] = [];
-            for (const p of feeling.photos) {
-                if (p.file) {
-                    const uploaded = await uploadFile(p.file);
-                    uploadedFeelingPhotos.push(uploaded);
-                } else {
-                    uploadedFeelingPhotos.push({ id: p.id, url: p.url, name: "" });
-                }
+                const ids = uploaded.map((f) => f.file_id);
+                photoIds = ids.slice(0, photoFiles.length);
+                feelingIds = ids.slice(photoFiles.length, photoFiles.length + feelingFiles.length);
+                attachmentIds = ids.slice(photoFiles.length + feelingFiles.length);
             }
 
             // ===== Bangun body =====
@@ -230,8 +233,8 @@ export default function FeedNew() {
                 teamId: visibility === "my_team" ? teamId.trim() || null : null,
                 status: visibility === "draft" ? "draft" : "published",
 
-                photos: uploadedPhotos,
-                attachments: uploadedAttachments,
+                photos: photoIds,             // file_id[] from /post/upload_file
+                attachments: attachmentIds,   // file_id[] from /post/upload_file
 
                 expense: kind === "expense"
                     ? {
@@ -250,7 +253,7 @@ export default function FeedNew() {
                     ? {
                         rating: feeling.rating || null,
                         text: feeling.text.trim() || null,
-                        photos: uploadedFeelingPhotos,
+                        photos: feelingIds,
                     }
                     : null,
             };
@@ -267,7 +270,10 @@ export default function FeedNew() {
             }
         } catch (err) {
             console.log("error create post", err);
-            toast.error("Failed to submit. Please try again.");
+            toast.error(uploadErrorMessage(err, "Failed to submit. Please try again."));
+        } finally {
+            setSubmitting(false);
+            setUploadPct(null);
         }
     };
 
@@ -404,8 +410,12 @@ export default function FeedNew() {
                             <Button type="button" variant="outline" onClick={() => navigate("/")}>
                                 Cancel
                             </Button>
-                            <Button type="submit">
-                                {kind === "expense"
+                            <Button type="submit" disabled={submitting}>
+                                {submitting
+                                    ? uploadPct !== null
+                                        ? `Uploading ${uploadPct}%`
+                                        : "Processing…"
+                                    : kind === "expense"
                                     ? "Save expense"
                                     : visibility === "draft"
                                         ? "Save as draft"

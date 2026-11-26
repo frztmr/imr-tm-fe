@@ -1,18 +1,23 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Paperclip, X } from "lucide-react";
+import { ATTACHMENT_ACCEPT } from "@/config/post";
 
 type Props = { files: File[]; onChange: (f: File[]) => void };
 
 export function AttachmentsField({ files, onChange }: Props) {
     return (
         <div className="space-y-1.5">
-            <Label htmlFor="attachments">Attachments (optional)</Label>
+            <Label htmlFor="attachments">Attachments (optional) — PDF, Word, Excel, PowerPoint, TXT, CSV · max 25 MB each</Label>
             <Input
                 id="attachments"
                 type="file"
                 multiple
-                onChange={(e) => onChange([...files, ...Array.from(e.target.files ?? [])])}
+                accept={ATTACHMENT_ACCEPT}
+                onChange={(e) => {
+                    onChange([...files, ...Array.from(e.target.files ?? [])]);
+                    e.target.value = ""; // allow picking the same file again after removing it
+                }}
                 className="cursor-pointer"
             />
             {files.length > 0 && (

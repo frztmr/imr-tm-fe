@@ -19,10 +19,11 @@ const API_CONF = axios.create({
 // 401 HANDLER — session expired / not logged in → go to login page
 // =========================================================
 
-// 401 on these is expected and handled by the caller:
-//  - /auth/keep_login : app start when not logged in (redirecting here would loop)
-//  - /auth/login      : wrong username / password
-const SKIP_401_REDIRECT = ["/auth/keep_login", "/auth/login"];
+// Any 401 → /login. Only exception:
+//  - /auth/login : wrong username / password → the login form shows the error itself
+// No redirect loop: when we're already on /login nothing happens (see onLoginPage below),
+// so /auth/keep_login returning 401 on the login page is fine.
+const SKIP_401_REDIRECT = ["/auth/login"];
 
 const LOGIN_PATH = "/login";
 let redirecting = false; // avoid multiple redirects when several requests fail at once

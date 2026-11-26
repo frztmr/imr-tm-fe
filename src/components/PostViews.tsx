@@ -10,7 +10,7 @@ import { FeedPost, PostReply, ParentPost } from "@/types/tipes"
 
 import {
   Heart, MessageCircle, Share2,
-  Bookmark, Trash2, MapPin, Lock, Star, CalendarDays, Clock
+  Bookmark, Trash2, MapPin, Lock, Star, CalendarDays, Clock, Paperclip, Download
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,12 @@ function formatDate(iso?: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function formatDateTime(iso?: string) {
@@ -256,6 +262,27 @@ export function PostBody({ post }: { post: FeedPost }) {
       )}
 
       <PhotoCarousel photos={post.photos} alt="Post photo" />
+
+      {post.attachments && post.attachments.length > 0 && (
+        <ul className="space-y-1.5">
+          {post.attachments.map((a) => (
+            <li key={a.id}>
+              <a
+                href={a.url}               // GET /post/file/:file_id → BE sends it as a download
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition hover:bg-muted/50"
+              >
+                <Paperclip className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1 truncate">{a.name}</span>
+                {a.size > 0 && <span className="shrink-0 text-xs text-muted-foreground">{formatBytes(a.size)}</span>}
+                <Download className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {post.tags.length > 0 && (
         <div className="flex flex-wrap gap-x-2 gap-y-1 text-sm text-primary">

@@ -5,6 +5,7 @@ import { ArrowLeft, CornerUpLeft } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ParentPreview, PostBody, PostDates, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
+import { DeletePostButton } from "@/components/DeletePostButton";
 import { useLike } from "@/lib/useLike";
 import { useBookmark } from "@/lib/useBookmark";
 import { handleOf, initialsOf, relTime } from "@/lib/feed";
@@ -12,7 +13,7 @@ import { getPostDetail, toParentPost } from "@/config/post";
 import type { FeedPost, ParentPost } from "@/types/tipes";
 
 // One reply row — replies are posts too, so clicking opens their own detail page
-function ReplyItem({ reply }: { reply: FeedPost }) {
+function ReplyItem({ reply, onDeleted }: { reply: FeedPost; onDeleted?: () => void }) {
     const navigate = useNavigate();
     const { liked, likes, toggle: toggleLike } = useLike(reply);
     const { saved, toggle: toggleSave } = useBookmark(reply);
@@ -35,6 +36,14 @@ function ReplyItem({ reply }: { reply: FeedPost }) {
                     <span className="text-muted-foreground">{handleOf(reply.author)}</span>
                     <span className="text-muted-foreground">·</span>
                     <span className="text-muted-foreground">{relTime(reply.createdAt)}</span>
+                    {reply.isDeletable && (
+                        <DeletePostButton
+                            postId={reply.id}
+                            onDeleted={onDeleted}
+                            className="ml-auto"
+                            iconClassName="h-3.5 w-3.5"
+                        />
+                    )}
                 </div>
                 <PostBody post={reply} />
                 <PostDates
@@ -155,7 +164,7 @@ export default function PostDetail() {
                                         {initialsOf(post.author)}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div className="text-sm">
+                                <div className="min-w-0 flex-1 text-sm">
                                     <div className="font-semibold">{post.author}</div>
                                     <div className="text-muted-foreground">
                                         {handleOf(post.author)} · {relTime(post.createdAt)}
@@ -166,6 +175,13 @@ export default function PostDetail() {
                                         </div>
                                     )}
                                 </div>
+                                {post.isDeletable && (
+                                    <DeletePostButton
+                                        postId={post.id}
+                                        // post is gone → go back to its parent, or home
+                                        onDeleted={() => navigate(post.parentId ? `/p/${post.parentId}` : "/", { replace: true })}
+                                    />
+                                )}
                             </div>
 
                             <PostBody post={post} />
@@ -200,7 +216,16 @@ export default function PostDetail() {
                                 <p className="px-4 pb-6 text-sm text-muted-foreground">No replies yet.</p>
                             ) : (
                                 <div className="divide-y">
-                                    {replies.map((r) => <ReplyItem key={r.id} reply={r} />)}
+                                    {replies.map((r) => (
+                                        <ReplyItem
+                                            key={r.id}
+                                            reply={r}
+                                            onDeleted={() => {
+                                                setReplies((prev) => prev.filter((x) => x.id !== r.id));
+                                                setPost((p) => p && { ...p, replyCount: Math.max(0, (p.replyCount ?? 0) - 1) });
+                                            }}
+                                        />
+                                    ))}
                                 </div>
                             )}
                         </div>

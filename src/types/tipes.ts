@@ -246,6 +246,10 @@ export interface FeedPost {
   /** Coordinates where the post was made (BE sends them as strings). */
   latitude?: number;
   longitude?: number;
+  /** Attached documents (kind "attachment" from /post/detail files). */
+  attachments?: PostAttachment[];
+  /** Whether the current user may delete this post (is_deletable). */
+  isDeletable?: boolean;
   /** Whether the current user has bookmarked this post (is_bookmarked). */
   bookmarkedByMe?: boolean;
   /** Reply count from backend (reply_count). */
@@ -258,6 +262,15 @@ export interface FeedPost {
   eventDate?: string;
   /** Short info of the parent post when this post is a reply. */
   parent?: ParentPost;
+}
+
+/** Uploaded document attached to a post. url → GET /post/file/:file_id */
+export interface PostAttachment {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  mime: string;
 }
 
 /** Minimal parent post info used to render "replying to" previews. */

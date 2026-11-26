@@ -26,6 +26,7 @@ export type SimplePostRow = {
     is_liked?: boolean | null;           // whether the current user already liked this post
     liked_by_me?: boolean | null;        // older name, kept as fallback
     is_bookmarked?: boolean | null;      // whether the current user bookmarked this post
+    is_deletable?: boolean | null;       // whether the current user may delete this post
     reply_count: number | null;
     repost_count: number | null;
     is_edited: boolean | null;
@@ -56,6 +57,7 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     likeCount: Number(row.like_count) || 0,
     likedByMe: (row.is_liked ?? row.liked_by_me) === true,
     bookmarkedByMe: row.is_bookmarked === true,
+    isDeletable: row.is_deletable === true,
     replyCount: Number(row.reply_count) || 0,
     parentId: row.parent_id || undefined,
     rootId: row.root_id || undefined,
@@ -90,14 +92,133 @@ export const getSimplePost = async (): Promise<FeedPost[]> => {
     return rows.map(mapSimplePost);
 }
 
-// POST /upload — upload one file, BE returns { id, url, name }
-export const uploadFile = async (file: File): Promise<{ id: string; url: string; name: string }> => {
-    const form = new FormData();
-    form.append("file", file);
-    const res = await Axios.post("/upload", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data;
+// =========================================================
+// FILE UPLOAD
+// 1. POST /post/upload_file (multipart, field "files")  → file_id per file (status "queued")
+// 2. GET  /post/upload_status?ids=a,b,c                  → poll until ready / failed
+// 3. send file_id arrays as `photos` / `attachments` in new_post / new_reply_post
+// 4. GET  /post/file/:file_id                            → the file (img src / download)
+// =========================================================
+
+// mirrors BE config/storage.ts (ALLOWED_POST_FILES, UPLOAD_MAX_FILE_MB, UPLOAD_MAX_FILES)
+export const UPLOAD_MAX_FILE_SIZE = 25 * 1024 * 1024;
+export const UPLOAD_MAX_FILES = 10; // per request
+export const PHOTO_EXTS = ["jpg", "jpeg", "png", "webp", "gif"];
+export const ATTACHMENT_EXTS = ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv"];
+export const PHOTO_ACCEPT = PHOTO_EXTS.map((e) => `.${e}`).join(",");
+export const ATTACHMENT_ACCEPT = ATTACHMENT_EXTS.map((e) => `.${e}`).join(",");
+
+export const fileExt = (name: string) => (name.split(".").pop() ?? "").toLowerCase();
+export const isAllowedPhoto = (f: File) => PHOTO_EXTS.includes(fileExt(f.name));
+export const isAllowedAttachment = (f: File) => ATTACHMENT_EXTS.includes(fileExt(f.name));
+
+export type UploadStatus = "queued" | "processing" | "ready" | "failed";
+
+export type UploadedFile = {
+    file_id: string;
+    kind: "photo" | "attachment";
+    original_name: string;
+    size_bytes: number;
+    status: UploadStatus;
+    error?: string | null;
+};
+
+// URL of an uploaded file. Works directly as <img src> / <a href> (login cookie is sent).
+export const fileUrl = (fileId: string) =>
+    `${(Axios.defaults.baseURL ?? "").replace(/\/$/, "")}/post/file/${encodeURIComponent(fileId)}`;
+
+// POST /post/upload_file — BE takes max UPLOAD_MAX_FILES per request, so send in batches.
+// Returned in the same order as `files`.
+export const uploadFiles = async (
+    files: File[],
+    onProgress?: (percent: number) => void
+): Promise<UploadedFile[]> => {
+    if (files.length === 0) return [];
+
+    const totalBytes = files.reduce((n, f) => n + f.size, 0) || 1;
+    let doneBytes = 0;
+    const out: UploadedFile[] = [];
+
+    for (let i = 0; i < files.length; i += UPLOAD_MAX_FILES) {
+        const batch = files.slice(i, i + UPLOAD_MAX_FILES);
+        const batchBytes = batch.reduce((n, f) => n + f.size, 0);
+
+        const form = new FormData();
+        batch.forEach((f) => form.append("files", f)); // BE field name: "files"
+
+        const res = await Axios.post("/post/upload_file", form, {
+            headers: { "Content-Type": "multipart/form-data" },
+            timeout: 5 * 60 * 1000, // big files take longer than the default 5s
+            onUploadProgress: (e) => {
+                if (!onProgress || !e.total) return;
+                const sent = doneBytes + (e.loaded / e.total) * batchBytes;
+                onProgress(Math.min(100, Math.round((sent / totalBytes) * 100)));
+            },
+        });
+        doneBytes += batchBytes;
+        if (Array.isArray(res.data?.files)) out.push(...res.data.files);
+    }
+    return out;
+}
+
+// GET /post/upload_status?ids=a,b,c
+export const getUploadStatus = async (
+    ids: string[]
+): Promise<{ files: UploadedFile[]; allDone: boolean }> => {
+    const res = await Axios.get("/post/upload_status", { params: { ids: ids.join(",") } });
+    return {
+        files: Array.isArray(res.data?.files) ? res.data.files : [],
+        allDone: res.data?.all_done === true,
+    };
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Poll upload_status until every file is ready / failed, or until the timeout.
+ * Throws if any file failed processing (names in the message).
+ * On timeout it just returns — BE still attaches files that are queued/processing.
+ */
+export const waitForUploads = async (ids: string[], timeoutMs = 60_000, intervalMs = 1000) => {
+    if (ids.length === 0) return;
+    const deadline = Date.now() + timeoutMs;
+
+    while (Date.now() < deadline) {
+        const { files, allDone } = await getUploadStatus(ids);
+        const failed = files.filter((f) => f.status === "failed");
+        if (failed.length) {
+            throw new Error(`Couldn't process: ${failed.map((f) => f.original_name).join(", ")}`);
+        }
+        if (allDone) return;
+        await sleep(intervalMs);
+    }
+}
+
+/**
+ * Upload photos + attachments, wait for processing, return the file_id arrays
+ * to send as `photos` / `attachments` in new_post / new_reply_post.
+ */
+export const uploadPostFiles = async (
+    photos: File[],
+    attachments: File[],
+    onProgress?: (percent: number) => void
+): Promise<{ photos: string[]; attachments: string[] }> => {
+    const all = [...photos, ...attachments];
+    if (all.length === 0) return { photos: [], attachments: [] };
+
+    const uploaded = await uploadFiles(all, onProgress);
+    await waitForUploads(uploaded.map((f) => f.file_id));
+
+    return {
+        photos: uploaded.filter((f) => f.kind === "photo").map((f) => f.file_id),
+        attachments: uploaded.filter((f) => f.kind === "attachment").map((f) => f.file_id),
+    };
+}
+
+// pull the BE's { msg } out of an axios error (e.g. "file too large. max 25 MB")
+export const uploadErrorMessage = (err: unknown, fallback = "Upload failed. Please try again.") => {
+    const e = err as { response?: { data?: { msg?: string } }; message?: string };
+    return e?.response?.data?.msg || e?.message || fallback;
 }
 
 export type ReplyPayload = {
@@ -113,14 +234,7 @@ export type ReplyPayload = {
 
 // Reply to a post. Uploads files first, then POST /post/new_reply_post
 export const replyPost = async (p: ReplyPayload) => {
-    const photos: { id: string; url: string; name: string }[] = [];
-    for (const f of p.images) photos.push(await uploadFile(f));
-
-    const attachments: { name: string; url: string; size: number; mimeType: string }[] = [];
-    for (const f of p.files) {
-        const up = await uploadFile(f);
-        attachments.push({ name: up.name, url: up.url, size: f.size, mimeType: f.type });
-    }
+    const { photos, attachments } = await uploadPostFiles(p.images, p.files); // → file_id arrays
 
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -167,6 +281,19 @@ export const bookmarkUnbookmarkPost = async (
     };
 }
 
+// DELETE /post/delete/:post_id — delete a post (only when is_deletable is true)
+export const deletePost = async (postId: string) => {
+    return Axios.delete(`/post/delete/${encodeURIComponent(postId)}`);
+}
+
+type PostFileRow = {
+    file_id: string;
+    kind: "photo" | "attachment";
+    original_name: string | null;
+    mime: string | null;
+    size_bytes: number | string | null;
+};
+
 // GET /post/detail/:post_id
 // BE response: { msg, post_parent: [the post itself], post_root: [direct replies (parent_id = post_id)] }
 export const getPostDetail = async (
@@ -176,12 +303,28 @@ export const getPostDetail = async (
     const postRows: SimplePostRow[] = Array.isArray(res.data?.post_parent) ? res.data.post_parent : [];
     const replyRows: SimplePostRow[] = Array.isArray(res.data?.post_root) ? res.data.post_root : [];
 
+    // files of the main post: { file_id, kind, original_name, mime, size_bytes, metadata }[]
+    const fileRows: PostFileRow[] = Array.isArray(res.data?.files) ? res.data.files : [];
+
     const replies = replyRows
         .map(mapSimplePost)
         .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1)); // oldest reply first
 
-    return {
-        post: postRows.length ? mapSimplePost(postRows[0], 0) : null,
-        replies,
-    };
+    const post = postRows.length ? mapSimplePost(postRows[0], 0) : null;
+    if (post) {
+        post.photos = fileRows
+            .filter((f) => f.kind === "photo")
+            .map((f) => ({ id: f.file_id, url: fileUrl(f.file_id), caption: f.original_name ?? "" }));
+        post.attachments = fileRows
+            .filter((f) => f.kind === "attachment")
+            .map((f) => ({
+                id: f.file_id,
+                name: f.original_name ?? "file",
+                url: fileUrl(f.file_id),
+                size: Number(f.size_bytes) || 0,
+                mime: f.mime ?? "",
+            }));
+    }
+
+    return { post, replies };
 }

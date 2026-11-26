@@ -20,10 +20,11 @@ import { ReplyForm } from "@/components/ReplyForm";
 import { useLike } from "@/lib/useLike";
 import { useBookmark } from "@/lib/useBookmark";
 import { LinkCard, LinkifiedText } from "@/components/LinkPreview";
+import { DeletePostButton } from "@/components/DeletePostButton";
 import {
   Heart, MessageCircle, Share2,
   Bookmark, MapPin, Sparkles,
-  TrendingUp, FileText, PenSquare, Trash2
+  TrendingUp, FileText, PenSquare
 } from "lucide-react";
  
 //Redux
@@ -143,7 +144,7 @@ function FeedCard({ trip }: { trip: Trip }) {
   );
 }
 
-function PostCard({ post }: { post: FeedPost }) {
+function PostCard({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void }) {
 
   const navigate = useNavigate();
   const { liked, likes, toggle: toggleLike } = useLike(post); // POST /post/like_unlike/:post_id
@@ -194,13 +195,9 @@ function PostCard({ post }: { post: FeedPost }) {
                 Replying to <span className="text-primary">{handleOf(post.parent.author)}</span>
               </span>
             )}
-            <button
-              // onClick={(e) => { e.stopPropagation(); dispatch(deletePost(post.id)); }}
-              aria-label="Delete post"
-              className="ml-auto rounded-full p-1 text-muted-foreground opacity-0 transition hover:text-destructive focus:opacity-100 group-hover:opacity-100"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {post.isDeletable && (
+              <DeletePostButton postId={post.id} onDeleted={onDeleted} className="ml-auto" />
+            )}
           </div>
 
           {(kindLabel || post.tripTitle) && (
@@ -370,7 +367,11 @@ const HomePage = () => {
             it.kind === "trip" ? (
               <FeedCard key={it.id} trip={it.trip} />
             ) : (
-              <PostCard key={it.id} post={it.post} />
+              <PostCard
+                key={it.id}
+                post={it.post}
+                onDeleted={() => setPosts((prev) => prev.filter((p) => p.id !== it.post.id))}
+              />
             ),
           )}
         </div>

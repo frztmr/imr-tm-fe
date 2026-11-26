@@ -6,11 +6,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/lib/currentUser";
 import { handleOf, initialsOf } from "@/lib/feed";
-import { replyPost } from "@/config/post";
+import {
+    replyPost, uploadErrorMessage, UPLOAD_MAX_FILE_SIZE,
+    PHOTO_ACCEPT, ATTACHMENT_ACCEPT, isAllowedPhoto, isAllowedAttachment,
+} from "@/config/post";
 
 const MAX_IMAGES = 4;
-const MAX_FILES = 5;
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB per file
+const MAX_FILES = 5;                    // 4 + 5 stays under the BE limit of 10 files per upload
+const MAX_SIZE = UPLOAD_MAX_FILE_SIZE;  // 25 MB per file (BE limit)
 const MAX_TEXT = 500;
 
 type Props = {
@@ -65,7 +68,9 @@ export function ReplyForm({ parentId, replyingTo, visibility, onReplied }: Props
 
     const addImages = (list: FileList | null) => {
         if (!list) return;
-        const picked = Array.from(list).filter((f) => f.type.startsWith("image/"));
+        const all = Array.from(list);
+        const picked = all.filter(isAllowedPhoto);
+        if (picked.length < all.length) toast.error("Only JPG, PNG, WEBP or GIF pictures are allowed.");
         const tooBig = picked.filter((f) => f.size > MAX_SIZE);
         if (tooBig.length) toast.error(`Images must be under ${formatSize(MAX_SIZE)}.`);
         const ok = picked.filter((f) => f.size <= MAX_SIZE);
@@ -76,7 +81,9 @@ export function ReplyForm({ parentId, replyingTo, visibility, onReplied }: Props
 
     const addFiles = (list: FileList | null) => {
         if (!list) return;
-        const picked = Array.from(list);
+        const all = Array.from(list);
+        const picked = all.filter(isAllowedAttachment);
+        if (picked.length < all.length) toast.error("Only PDF, Word, Excel, PowerPoint, TXT or CSV files are allowed.");
         const tooBig = picked.filter((f) => f.size > MAX_SIZE);
         if (tooBig.length) toast.error(`Files must be under ${formatSize(MAX_SIZE)}.`);
         const ok = picked.filter((f) => f.size <= MAX_SIZE);
@@ -117,7 +124,7 @@ export function ReplyForm({ parentId, replyingTo, visibility, onReplied }: Props
             onReplied?.();
         } catch (err) {
             console.log("err at reply post", err);
-            toast.error("Failed to send reply. Please try again.");
+            toast.error(uploadErrorMessage(err, "Failed to send reply. Please try again."));
         } finally {
             setSending(false);
         }
@@ -189,7 +196,7 @@ export function ReplyForm({ parentId, replyingTo, visibility, onReplied }: Props
                     <input
                         ref={imageInput}
                         type="file"
-                        accept="image/*"
+                        accept={PHOTO_ACCEPT}
                         multiple
                         hidden
                         onChange={(e) => { addImages(e.target.files); e.target.value = ""; }}
@@ -197,6 +204,7 @@ export function ReplyForm({ parentId, replyingTo, visibility, onReplied }: Props
                     <input
                         ref={fileInput}
                         type="file"
+                        accept={ATTACHMENT_ACCEPT}
                         multiple
                         hidden
                         onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
@@ -219,7 +227,9 @@ export function ReplyForm({ parentId, replyingTo, visibility, onReplied }: Props
                     </Button>
                     <span className="ml-auto text-[11px] text-muted-foreground">{text.length}/{MAX_TEXT}</span>
                     <Button type="submit" size="sm" className="ml-2 h-8 rounded-full" disabled={!canSend}>
-                        {sending ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> Sending</> : "Reply"}
+                        {sending
+                            ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> {images.length || files.length ? "Uploading" : "Sending"}</>
+                            : "Reply"}
                     </Button>
                 </div>
             </div>
