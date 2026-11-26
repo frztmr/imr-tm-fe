@@ -30,7 +30,35 @@ export type SimplePostRow = {
     reply_count: number | null;
     repost_count: number | null;
     is_edited: boolean | null;
+    // photos & attachments of this post (BE: postFilesColumn, only status "ready")
+    files?: PostFileRow[] | null;
 };
+
+// one file in SimplePostRow.files
+type PostFileRow = {
+    file_id: string;
+    kind: "photo" | "attachment";
+    original_name: string | null;
+    mime: string | null;
+    size_bytes: number | string | null;
+};
+
+// split BE file rows into the photos / attachments the UI renders
+const toPhotos = (files: PostFileRow[] | null | undefined) =>
+    (files ?? [])
+        .filter((f) => f.kind === "photo")
+        .map((f) => ({ id: f.file_id, url: fileUrl(f.file_id), caption: f.original_name ?? "" }));
+
+const toAttachments = (files: PostFileRow[] | null | undefined) =>
+    (files ?? [])
+        .filter((f) => f.kind === "attachment")
+        .map((f) => ({
+            id: f.file_id,
+            name: f.original_name ?? "file",
+            url: fileUrl(f.file_id),
+            size: Number(f.size_bytes) || 0,
+            mime: f.mime ?? "",
+        }));
 
 // pg numeric comes as string → number; undefined when missing / invalid / out of range
 const toCoord = (v: string | number | null | undefined, limit: number): number | undefined => {
@@ -52,7 +80,8 @@ const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     latitude: toCoord(row.latitude, 90),
     longitude: toCoord(row.longitude, 180),
     tags: [],
-    photos: [],
+    photos: toPhotos(row.files),
+    attachments: toAttachments(row.files),
     kind: "post",
     likeCount: Number(row.like_count) || 0,
     likedByMe: (row.is_liked ?? row.liked_by_me) === true,
@@ -286,14 +315,6 @@ export const deletePost = async (postId: string) => {
     return Axios.delete(`/post/delete/${encodeURIComponent(postId)}`);
 }
 
-type PostFileRow = {
-    file_id: string;
-    kind: "photo" | "attachment";
-    original_name: string | null;
-    mime: string | null;
-    size_bytes: number | string | null;
-};
-
 // GET /post/detail/:post_id
 // BE response: { msg, post_parent: [the post itself], post_root: [direct replies (parent_id = post_id)] }
 export const getPostDetail = async (
@@ -303,27 +324,19 @@ export const getPostDetail = async (
     const postRows: SimplePostRow[] = Array.isArray(res.data?.post_parent) ? res.data.post_parent : [];
     const replyRows: SimplePostRow[] = Array.isArray(res.data?.post_root) ? res.data.post_root : [];
 
-    // files of the main post: { file_id, kind, original_name, mime, size_bytes, metadata }[]
+    // older BE: files of the main post only came in a separate `files` field
     const fileRows: PostFileRow[] = Array.isArray(res.data?.files) ? res.data.files : [];
 
     const replies = replyRows
         .map(mapSimplePost)
         .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1)); // oldest reply first
 
+    // files now come per row (row.files) → mapSimplePost fills photos / attachments,
+    // for the main post AND every reply. fall back to the separate field if the row has none.
     const post = postRows.length ? mapSimplePost(postRows[0], 0) : null;
-    if (post) {
-        post.photos = fileRows
-            .filter((f) => f.kind === "photo")
-            .map((f) => ({ id: f.file_id, url: fileUrl(f.file_id), caption: f.original_name ?? "" }));
-        post.attachments = fileRows
-            .filter((f) => f.kind === "attachment")
-            .map((f) => ({
-                id: f.file_id,
-                name: f.original_name ?? "file",
-                url: fileUrl(f.file_id),
-                size: Number(f.size_bytes) || 0,
-                mime: f.mime ?? "",
-            }));
+    if (post && !Array.isArray(postRows[0].files) && fileRows.length > 0) {
+        post.photos = toPhotos(fileRows);
+        post.attachments = toAttachments(fileRows);
     }
 
     return { post, replies };

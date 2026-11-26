@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
-import { ParentPreview, PostDates, ReplyRow, ThreadActions } from "@/components/PostViews";
+import { AttachmentList, ParentPreview, PostDates, ReplyRow, ThreadActions } from "@/components/PostViews";
 import { ReplyForm } from "@/components/ReplyForm";
 import { useLike } from "@/lib/useLike";
 import { useBookmark } from "@/lib/useBookmark";
@@ -231,6 +231,8 @@ function PostCard({ post, onDeleted }: { post: FeedPost; onDeleted?: () => void 
           )}
 
           <PhotoCarousel photos={post.photos} alt="Post photo" />
+
+          <AttachmentList attachments={post.attachments} />
 
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-x-2 gap-y-1 text-sm text-primary">
