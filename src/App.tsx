@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { userState } from "./store/types";
@@ -33,7 +33,7 @@ import NewTag from "./pages/Tag.New";
 const queryClient = new QueryClient();
 
 // =========================================================
-// AUTH BOOTSTRAP — cek keep_login sekali saat aplikasi start
+// AUTH BOOTSTRAP — cek keep_login saat aplikasi start + setiap pindah halaman
 // =========================================================
 const AuthBootstrap = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
@@ -60,6 +60,29 @@ const AuthBootstrap = ({ children }: { children: React.ReactNode }) => {
       cancelled = true;
     };
   }, [personalData, dispatch]);
+
+  // ===== re-check / refresh the session on EVERY navigation (incl. /p/:postId) =====
+  // runs in the background (no loading screen). If the session is gone the BE returns 401
+  // and the axios interceptor sends the user to /login.
+  const location = useLocation();
+  const firstNav = useRef(true);
+  useEffect(() => {
+    // the first page load is already covered by the check above
+    if (firstNav.current) {
+      firstNav.current = false;
+      return;
+    }
+    if (location.pathname.startsWith("/login")) return;
+
+    let cancelled = false;
+    keepLogin({
+      dispatch,
+      isCancelled: () => cancelled,
+    });
+    return () => {
+      cancelled = true; // a newer navigation wins
+    };
+  }, [location.key, location.pathname, dispatch]);
 
   if (isChecking) {
     return (

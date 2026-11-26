@@ -5,10 +5,12 @@ import { login } from "@/store/userSlice";
 type KeepLoginOptions = {
     dispatch: Dispatch;          // from useDispatch() in the calling component
     isCancelled: () => boolean;  // true once the component unmounts / effect re-runs
-    onDone: () => void;          // called when the check finishes (success or fail)
+    onDone?: () => void;         // called when the check finishes (success or fail)
 };
 
 // Check the existing session (cookie) with the backend and restore the user into redux.
+// Called on app start AND on every page navigation (see AuthBootstrap in App.tsx).
+// 401 here → axios interceptor redirects to /login.
 export const keepLogin = ({ dispatch, isCancelled, onDone }: KeepLoginOptions) => {
     return Axios.get("/auth/keep_login")
         .then((res) => {
@@ -21,6 +23,6 @@ export const keepLogin = ({ dispatch, isCancelled, onDone }: KeepLoginOptions) =
             console.log("err at keep_login");
         })
         .finally(() => {
-            if (!isCancelled()) onDone();
+            if (!isCancelled()) onDone?.();
         });
 }
