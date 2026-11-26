@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Photo } from "@/store/types";
+import { PhotoLightbox } from "@/components/PhotoLightbox";
 
 export function PhotoCarousel({
   photos,
@@ -13,6 +14,8 @@ export function PhotoCarousel({
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const [viewing, setViewing] = useState<number | null>(null); // fullscreen photo index
+  const closeViewer = useCallback(() => setViewing(null), []);
 
   if (!photos || photos.length === 0) return null;
 
@@ -52,7 +55,8 @@ export function PhotoCarousel({
               src={p.url}
               alt={p.caption || `${alt} ${i + 1}`}
               loading="lazy"
-              className={single ? "max-h-96 w-full object-cover" : "aspect-square w-full object-cover"}
+              onClick={() => setViewing(i)}
+              className={`cursor-zoom-in ${single ? "max-h-96 w-full object-cover" : "aspect-square w-full object-cover"}`}
             />
             {p.caption && (
               <figcaption className="px-3 py-1.5 text-[11px] text-muted-foreground">{p.caption}</figcaption>
@@ -95,6 +99,10 @@ export function PhotoCarousel({
             ))}
           </div>
         </>
+      )}
+
+      {viewing !== null && (
+        <PhotoLightbox photos={photos} startIndex={viewing} alt={alt} onClose={closeViewer} />
       )}
     </div>
   );
