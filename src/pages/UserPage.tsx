@@ -1,142 +1,321 @@
+import { useEffect, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import {
+    Briefcase, CalendarDays, Hash, Loader2, MapPin, Plane, Plus, Users,
+} from "lucide-react";
 
-//React Requirement
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Link, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
-
-
-//Component
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { initialsOf } from "@/lib/feed";
+import { PostCard } from "./HomePage";
 import {
-    Grid3x3, Plane, Bookmark,
-    MapPin, Trash2, FileText,
-    Receipt, BookOpen
-} from "lucide-react";
-// import { deletePost } from "@/store/postsSlice";
-import { ProfileTabs, PostsGrid, ArticlesTab, TripsTab, SavedTab } from "./users";
+    getUserBookmarks, getUserPosts, getUserProfile, getUserTags,
+    type UserProfile, type UserTag,
+} from "@/config/users";
+import type { FeedPost } from "@/types/tipes";
 
+type Tab = "posts" | "tags" | "bookmarks";
 
-// Redux
-import { useDispatch, useSelector } from "react-redux";
-import { userState } from "@/store/types"; 
+const formatDate = (iso?: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime())
+        ? iso
+        : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+};
 
+const tripStatusLabel: Record<string, string> = {
+    planned: "Planned",
+    in_progress: "In progress",
+    completed: "Completed",
+};
 
-// Typescript and Utils
-import { } from '../types/tipes'
-import { } from '../store/types'
-import { initialsOf } from '../lib/utils'
-import { dummyTrip, dummyAccount, dummyFeedPost } from '../store/dummyData'
+// =========================================================
+// small pieces
+// =========================================================
 
+function Centered({ children }: { children: React.ReactNode }) {
+    return <div className="px-4 py-10 text-center text-sm text-muted-foreground">{children}</div>;
+}
 
-const ProfilePage = () => {
-
-
-    //ini passing data dari URL
-    const { userId } = useParams();
-    const name = decodeURIComponent(userId);
-
-    // ini harusnya gak gini. 
-    // tapi cari dari database username ini. 
-    // kalau gk ada gimana displaynya?
-   
-    //ini tab di atas gambar
-    const [tab, setTab] = useState<"posts" | "articles" | "trips" | "saved">("posts");
-
-    // const posts = useAppSelector((s) => s.posts.posts).filter((p) => p.author === name);
-    // const trips = useAppSelector((s) => s.trips.trips).filter((t) => t.assignee === name);
-    // const account = useAppSelector((s) => s.auth.accounts).find((a) => a.name === name);
-    const posts = [dummyFeedPost]
-    const trips = [dummyTrip]
-    const account = dummyAccount
-
-    const tripPhotoTiles = useMemo(() => {
-        const tiles: { id: string; url: string; tripId: string; caption: string }[] = [];
-        trips.forEach((t) => {
-            t.retailAudits.forEach((r) =>
-                r.photos.forEach((p) =>
-                    tiles.push({ id: p.id, url: p.url, tripId: t.id, caption: p.caption }),
-                ),
-            );
-        });
-        return tiles;
-    }, [trips]);
-
-    const totalLikes = posts.length * 24 + trips.length * 80;
-    const handle = name.toLowerCase().replace(/\s+/g, "");
-
-
+function Loading() {
     return (
-        <>
-            <div className="mx-auto max-w-3xl">
-                {/* Header */}
-                <header className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-                    <Avatar className="h-24 w-24 ring-4 ring-primary/20 sm:h-28 sm:w-28">
-                        <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-semibold">
-                            {initialsOf(name)}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 text-center sm:text-left">
-                        <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-3">
-                            <h1 className="text-xl font-semibold">{name}</h1>
-                            <span className="text-sm text-muted-foreground">@{handle}</span>
-                            {account?.role === "admin" && (
-                                <Badge variant="secondary" className="rounded-full">Admin</Badge>
-                            )}
-                        </div>
-                        <div className="mt-3 flex items-center justify-center gap-6 text-sm sm:justify-start">
-                            <div><span className="font-semibold">{posts.length + tripPhotoTiles.length}</span> <span className="text-muted-foreground">posts</span></div>
-                            <div><span className="font-semibold">{trips.length}</span> <span className="text-muted-foreground">trips</span></div>
-                            <div><span className="font-semibold">{trips.length}</span> <span className="text-muted-foreground">tag/topic</span></div>
-                            {/* <div><span className="font-semibold">{totalLikes}</span> <span className="text-muted-foreground">likes</span></div> */}
-                        </div>
-                        <p className="mt-3 text-sm text-foreground/80">
-                            {account?.role === "admin" ? "Admin" : "Field Researcher"} at IMI · capturing market truth on the ground.
-                        </p>
-                    </div>
-                </header>
-
-                {/* Tabs */}
-                <ProfileTabs
-                    activeTab={tab}
-                    onTabChange={setTab}
-                    className={''} />
-
-                {/* Grid */}
-                {tab === "posts" && (
-                    <PostsGrid
-                        posts={posts}
-                        // onDeletePost={(postId) => dispatch(deletePost(postId))}
-                        showDeleteButton={true}
-                    />
-                )}
-
-                {/* ArticleTab */}
-                {tab === "articles" && (
-                    <ArticlesTab
-                        trips={trips}
-                        posts={posts}
-                        userName={name}
-                    />
-                )}
-
-
-                {tab === "trips" && (
-                    <TripsTab
-                        trips={trips}
-                        showStatus={false}
-                    />
-                )}
-
-                {tab === "saved" && (
-                    <SavedTab
-                        tripPhotoTiles={tripPhotoTiles}
-                    />
-                )}
-            </div>
-        </>
+        <Centered>
+            <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+        </Centered>
     );
 }
-export default ProfilePage;
 
+function TagCard({ tag }: { tag: UserTag }) {
+    const isTrip = tag.tag_type === "trip";
+    const place = [tag.cities?.join(", "), tag.country].filter(Boolean).join(", ");
+    const dates = tag.start_date
+        ? `${formatDate(tag.start_date)}${tag.end_date ? ` – ${formatDate(tag.end_date)}` : ""}`
+        : "";
+
+    return (
+        <article className="space-y-1.5 px-4 py-3">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="inline-flex items-center gap-1 font-semibold">
+                    {isTrip ? <Plane className="h-4 w-4 text-primary" /> : <Hash className="h-4 w-4 text-primary" />}
+                    {tag.name}
+                </span>
+                <span className="text-sm text-primary">#{tag.slug}</span>
+                <div className="ml-auto flex flex-wrap gap-1">
+                    <Badge variant="secondary" className="rounded-full font-normal">
+                        {tag.tag_type_name || tag.tag_type}
+                    </Badge>
+                    {tag.role === "owner" && (
+                        <Badge variant="outline" className="rounded-full font-normal">Owner</Badge>
+                    )}
+                    {tag.member_status === "pending" && (
+                        <Badge variant="outline" className="rounded-full border-amber-500/50 font-normal text-amber-600">
+                            Waiting approval
+                        </Badge>
+                    )}
+                    {isTrip && tag.trip_status && (
+                        <Badge variant="outline" className="rounded-full font-normal">
+                            {tripStatusLabel[tag.trip_status] ?? tag.trip_status}
+                        </Badge>
+                    )}
+                </div>
+            </div>
+
+            {tag.description && (
+                <p className="line-clamp-2 text-sm text-foreground/80">{tag.description}</p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                {place && (
+                    <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {place}</span>
+                )}
+                {dates && (
+                    <span className="inline-flex items-center gap-1"><CalendarDays className="h-3 w-3" /> {dates}</span>
+                )}
+                <span className="inline-flex items-center gap-1">
+                    <Users className="h-3 w-3" /> {tag.member_count} {tag.member_count === 1 ? "member" : "members"}
+                </span>
+                <span>{tag.post_count} {tag.post_count === 1 ? "post" : "posts"}</span>
+                {tag.role !== "owner" && <span>by @{tag.owner_uname}</span>}
+            </div>
+        </article>
+    );
+}
+
+// =========================================================
+// page
+// =========================================================
+
+const ProfilePage = () => {
+    // /user/:userId — userId is the uname. "$userId" (old placeholder links) or empty = me
+    const { userId = "" } = useParams<{ userId: string }>();
+    const raw = decodeURIComponent(userId).trim();
+    const uname = raw && !raw.startsWith("$") ? raw : undefined;
+
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [profileError, setProfileError] = useState("");
+    const [loadingProfile, setLoadingProfile] = useState(true);
+
+    // ?tab=tags | bookmarks opens that tab (e.g. after creating a tag)
+    const [searchParams] = useSearchParams();
+    const initialTab = (["posts", "tags", "bookmarks"] as const).find((t) => t === searchParams.get("tab")) ?? "posts";
+    const [tab, setTab] = useState<Tab>(initialTab);
+
+    // per-tab data. null = not loaded yet
+    const [posts, setPosts] = useState<FeedPost[] | null>(null);
+    const [bookmarks, setBookmarks] = useState<FeedPost[] | null>(null);
+    const [tags, setTags] = useState<UserTag[] | null>(null);
+    const [tabError, setTabError] = useState("");
+
+    // ===== GET /users/profile =====
+    useEffect(() => {
+        let cancelled = false;
+        setLoadingProfile(true);
+        setProfileError("");
+        setProfile(null);
+        setTab(initialTab);
+        setPosts(null);
+        setBookmarks(null);
+        setTags(null);
+
+        getUserProfile(uname)
+            .then((p) => {
+                if (cancelled) return;
+                setProfile(p);
+                // bookmarks are private → not available on someone else's profile
+                if (!p.is_me) setTab((t) => (t === "bookmarks" ? "posts" : t));
+            })
+            .catch((err) => {
+                console.log("err at get profile", err);
+                if (cancelled) return;
+                const status = err?.response?.status;
+                if (status === 404) return setProfileError("This user doesn't exist.");
+                // show what actually went wrong (BE msg / status / timeout) to make it easier to debug
+                const detail = err?.response?.data?.msg
+                    || (err?.code === "ECONNABORTED" ? "request timed out" : err?.message)
+                    || "unknown error";
+                setProfileError(`Failed to load profile (${status ?? "no response"}: ${detail}).`);
+            })
+            .finally(() => { if (!cancelled) setLoadingProfile(false); });
+
+        return () => { cancelled = true; };
+    }, [uname]);
+
+    // ===== load the active tab once (GET /users/post | /users/tag | /users/bookmark) =====
+    useEffect(() => {
+        if (!profile) return;
+        let cancelled = false;
+        setTabError("");
+
+        const fail = (err: any) => {
+            console.log(`err at get user ${tab}`, err);
+            if (cancelled) return;
+            const detail = err?.response?.data?.msg || err?.message || "unknown error";
+            setTabError(`Failed to load ${tab} (${err?.response?.status ?? "no response"}: ${detail}).`);
+        };
+
+        if (tab === "posts" && posts === null) {
+            getUserPosts(uname).then((d) => { if (!cancelled) setPosts(d); }).catch(fail);
+        }
+        if (tab === "tags" && tags === null) {
+            getUserTags(uname).then((d) => { if (!cancelled) setTags(d); }).catch(fail);
+        }
+        if (tab === "bookmarks" && bookmarks === null && profile.is_me) {
+            getUserBookmarks().then((d) => { if (!cancelled) setBookmarks(d); }).catch(fail);
+        }
+
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tab, profile, uname]);
+
+    if (loadingProfile) return <div className="mx-auto max-w-xl"><Loading /></div>;
+    if (profileError || !profile) {
+        return <div className="mx-auto max-w-xl"><Centered>{profileError || "Profile not found."}</Centered></div>;
+    }
+
+    const displayName = profile.full_name?.trim() || profile.uname;
+    const work = [profile.job_title, profile.department || profile.division].filter(Boolean).join(" · ");
+
+    // bookmarks are private → only on my own profile
+    const tabs: { key: Tab; label: string }[] = [
+        { key: "posts", label: "Posts" },
+        { key: "tags", label: "Tags" },
+        ...(profile.is_me ? [{ key: "bookmarks" as Tab, label: "Bookmarks" }] : []),
+    ];
+
+    const removeFrom = (setter: React.Dispatch<React.SetStateAction<FeedPost[] | null>>, id: string) =>
+        setter((prev) => prev && prev.filter((p) => p.id !== id));
+
+    const renderPosts = (list: FeedPost[] | null, empty: string, setter: typeof setPosts) => {
+        if (list === null) return tabError ? <Centered>{tabError}</Centered> : <Loading />;
+        if (list.length === 0) return <Centered>{empty}</Centered>;
+        return (
+            <div className="divide-y">
+                {list.map((p) => (
+                    <PostCard key={p.id} post={p} onDeleted={() => removeFrom(setter, p.id)} />
+                ))}
+            </div>
+        );
+    };
+
+    return (
+        <div className="mx-auto max-w-xl">
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                {/* ===== header (Threads style: name left, avatar right) ===== */}
+                <header className="space-y-4 px-5 pb-4 pt-6">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0 space-y-1">
+                            <h1 className="truncate text-2xl font-bold leading-tight">{displayName}</h1>
+                            <div className="flex flex-wrap items-center gap-2 text-sm">
+                                <span>@{profile.uname}</span>
+                                {profile.role_name && (
+                                    <Badge variant="secondary" className="rounded-full px-2 py-0 text-[11px] font-normal">
+                                        {profile.role_name}
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+                        <Avatar className="h-20 w-20 shrink-0">
+                            <AvatarFallback className="bg-primary text-xl font-semibold text-primary-foreground">
+                                {initialsOf(displayName)}
+                            </AvatarFallback>
+                        </Avatar>
+                    </div>
+
+                    {profile.bio && <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{profile.bio}</p>}
+
+                    {(work || profile.location_base) && (
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                            {work && (
+                                <span className="inline-flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" /> {work}</span>
+                            )}
+                            {profile.location_base && (
+                                <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {profile.location_base}</span>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+                        <span><span className="font-medium text-foreground">{profile.post_count}</span> posts</span>
+                        <span>·</span>
+                        <span><span className="font-medium text-foreground">{profile.trip_count}</span> trips</span>
+                        <span>·</span>
+                        <span><span className="font-medium text-foreground">{profile.tag_count}</span> tags</span>
+                        <span>·</span>
+                        <span><span className="font-medium text-foreground">{profile.like_count}</span> likes</span>
+                    </div>
+
+                </header>
+
+                {/* ===== tabs ===== */}
+                <nav className="flex border-b" role="tablist">
+                    {tabs.map((t) => (
+                        <button
+                            key={t.key}
+                            type="button"
+                            role="tab"
+                            aria-selected={tab === t.key}
+                            onClick={() => setTab(t.key)}
+                            className={`flex-1 border-b-2 py-3 text-sm font-semibold transition ${
+                                tab === t.key
+                                    ? "border-foreground text-foreground"
+                                    : "border-transparent text-muted-foreground hover:text-foreground"
+                            }`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </nav>
+
+                {/* ===== tab content ===== */}
+                {tab === "posts" && renderPosts(
+                    posts,
+                    profile.is_me ? "You haven't posted anything yet." : "No posts yet.",
+                    setPosts,
+                )}
+
+                {tab === "bookmarks" && renderPosts(bookmarks, "No bookmarks yet.", setBookmarks)}
+
+                {/* "New tag" only on my own profile, inside the Tags tab */}
+                {tab === "tags" && profile.is_me && (
+                    <div className="border-b px-4 py-3">
+                        <Button asChild variant="outline" className="w-full rounded-xl">
+                            <Link to="/tags/new"><Plus className="mr-1 h-4 w-4" /> New tag</Link>
+                        </Button>
+                    </div>
+                )}
+
+                {tab === "tags" && (
+                    tags === null
+                        ? (tabError ? <Centered>{tabError}</Centered> : <Loading />)
+                        : tags.length === 0
+                            ? <Centered>No tags yet.</Centered>
+                            : <div className="divide-y">{tags.map((t) => <TagCard key={t.tag_id} tag={t} />)}</div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ProfilePage;

@@ -68,7 +68,7 @@ const toCoord = (v: string | number | null | undefined, limit: number): number |
 };
 
 // Convert a BE row into the FeedPost shape the feed UI already uses
-const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
+export const mapSimplePost = (row: SimplePostRow, index: number): FeedPost => ({
     // BE doesn't return the post id yet; fall back to a key that is unique per page load
     id: row.post_id ?? `${row.public_share_id}-${row.created_at}-${index}`,
     author: row.uname,
