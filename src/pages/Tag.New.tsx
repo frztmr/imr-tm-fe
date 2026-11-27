@@ -216,9 +216,9 @@ const NewTag = ({ defaultType }: { defaultType?: TagType }) => {
     }[type];
     const namePlaceholder = {
         simple: "e.g. Halal Certification",
-        person: "e.g. Mr. Kim Ji-hoon",
+        person: "e.g. Kevin Sietho or Elly Betty",
         event: "e.g. SIAL Paris 2026",
-        country: "e.g. Malaysia Market",
+        country: "e.g. Malaysia",
         trip: "e.g. Seoul May Sweep",
     }[type];
     const descLabel = {
